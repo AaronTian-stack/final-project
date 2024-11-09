@@ -139,7 +139,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="FallingSand.cpp" />
+    <ClCompile Include="src\grid.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\sdl_util.cpp" />
+    <ClCompile Include="src\simulation.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="SDL2-2.30.7\lib\x64\SDL2.dll">
@@ -147,6 +150,11 @@
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
       <FileType>Document</FileType>
     </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\grid.h" />
+    <ClInclude Include="src\sdl_util.h" />
+    <ClInclude Include="src\simulation.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
