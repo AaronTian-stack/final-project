@@ -52,12 +52,7 @@ int main()
 	RandomBrush brush(10, 0.4f);
 	Simulation simulation(&grid);
 
-	const int NUM_PARTICLES = 2;
-	const Particle PARTICLES[NUM_PARTICLES] = {
-		{ SAND, 0, 0, {0, 0}, 0xF4A460, 1 },
-		{ STONE, 0, 0, {0, 0}, 0x888888, 0 }
-	};
-	int particle = 0;
+	Particle::ID curr_particle = Particle::SAND;
 
 	bool quit = false;
 	while (!quit)
@@ -70,7 +65,7 @@ int main()
 				quit = true;
 				break;
 			case SDL_KEYDOWN:
-				particle = (particle + 1) % NUM_PARTICLES;
+				curr_particle = static_cast<Particle::ID>((curr_particle + 1) % Particle::END);
 				break;
 			default:
 				break;
@@ -94,7 +89,7 @@ int main()
 		}
 
 		// click to draw
-		brush.draw_particles(grid, Particle::SAND);
+		brush.draw_particles(grid, curr_particle);
 
 		uint32_t* pixelData = static_cast<uint32_t*>(pixels);
 		for (int y = 0; y < HEIGHT; ++y)
