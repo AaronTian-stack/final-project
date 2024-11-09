@@ -24,6 +24,7 @@ enum ID : uint16_t
 	EMPTY = 0,
 	SAND = 1,
 	WATER = 2,
+	STONE = 3,
 };
 
 // https://www.intel.com/content/www/us/en/docs/programmable/683176/18-1/aligning-a-struct-with-or-witout-padding.html#:~:text=A%20proper%20struct%20alignment%20means,increases%20with%20the%20increasing%20alignment
@@ -34,6 +35,7 @@ struct Particle
 	float life = 0;
 	Velocity velocity = {0, 0};
 	Color color = 0x000000;
+	int priority = 0;
 };
 
 class Grid

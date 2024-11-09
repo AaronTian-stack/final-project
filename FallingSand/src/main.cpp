@@ -50,15 +50,28 @@ int main()
 	Grid grid(WIDTH, HEIGHT);
 	int brush_size = 10;
 
+	const int NUM_PARTICLES = 2;
+	const Particle PARTICLES[NUM_PARTICLES] = {
+		{ SAND, 0, 0, {0, 0}, 0xF4A460, 1 },
+		{ STONE, 0, 0, {0, 0}, 0x888888, 0 }
+	};
+	int particle = 0;
+
 	bool quit = false;
 	while (!quit)
 	{
 		SDL_Event event;
 		while (SDL_PollEvent(&event))
 		{
-			if (event.type == SDL_QUIT)
-			{
+			switch (event.type) {
+			case SDL_QUIT:
 				quit = true;
+				break;
+			case SDL_KEYDOWN:
+				particle = (particle + 1) % NUM_PARTICLES;
+				break;
+			default:
+				break;
 			}
 		}
 
@@ -87,9 +100,13 @@ int main()
 					x2 = x2 * x2;
 					auto y2 = y - mouseY;
 					y2 = y2 * y2;
-					if (x2 + y2 < brush_size * brush_size)
+					if (0 <= x && x < WIDTH && 0 <= y && y < HEIGHT && x2 + y2 < brush_size * brush_size)
 					{
-						grid.set(x, y, { SAND, 0, 0, {0, 0}, 0xF4A460 });
+						Particle p = PARTICLES[particle];
+						if (grid.isEmpty(x, y) || p.priority < grid.get(x, y).priority)
+						{
+							grid.set(x, y, PARTICLES[particle]);
+						}
 					}
 				}
 			}
