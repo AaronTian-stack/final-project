@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35312.102
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FallingSand", "FallingSand.vcxproj", "{DDBF6AC7-A5A1-4BBB-9667-72F5F4A6EACD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DDBF6AC7-A5A1-4BBB-9667-72F5F4A6EACD}.Debug|x64.ActiveCfg = Debug|x64
+		{DDBF6AC7-A5A1-4BBB-9667-72F5F4A6EACD}.Debug|x64.Build.0 = Debug|x64
+		{DDBF6AC7-A5A1-4BBB-9667-72F5F4A6EACD}.Debug|x86.ActiveCfg = Debug|Win32
+		{DDBF6AC7-A5A1-4BBB-9667-72F5F4A6EACD}.Debug|x86.Build.0 = Debug|Win32
+		{DDBF6AC7-A5A1-4BBB-9667-72F5F4A6EACD}.Release|x64.ActiveCfg = Release|x64
+		{DDBF6AC7-A5A1-4BBB-9667-72F5F4A6EACD}.Release|x64.Build.0 = Release|x64
+		{DDBF6AC7-A5A1-4BBB-9667-72F5F4A6EACD}.Release|x86.ActiveCfg = Release|Win32
+		{DDBF6AC7-A5A1-4BBB-9667-72F5F4A6EACD}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5E8C6C7F-EF8A-4022-81FC-034FAB6A6A72}
+	EndGlobalSection
+EndGlobal
