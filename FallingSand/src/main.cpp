@@ -52,15 +52,28 @@ int main()
 	RandomBrush brush(10, 0.4f);
 	Simulation simulation(&grid);
 
+	const int NUM_PARTICLES = 2;
+	const Particle PARTICLES[NUM_PARTICLES] = {
+		{ SAND, 0, 0, {0, 0}, 0xF4A460, 1 },
+		{ STONE, 0, 0, {0, 0}, 0x888888, 0 }
+	};
+	int particle = 0;
+
 	bool quit = false;
 	while (!quit)
 	{
 		SDL_Event event;
 		while (SDL_PollEvent(&event))
 		{
-			if (event.type == SDL_QUIT)
-			{
+			switch (event.type) {
+			case SDL_QUIT:
 				quit = true;
+				break;
+			case SDL_KEYDOWN:
+				particle = (particle + 1) % NUM_PARTICLES;
+				break;
+			default:
+				break;
 			}
 		}
 		// start timer
