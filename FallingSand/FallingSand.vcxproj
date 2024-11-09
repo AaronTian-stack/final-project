@@ -139,6 +139,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\brush.cpp" />
+    <ClCompile Include="src\color.cpp" />
     <ClCompile Include="src\grid.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\sdl_util.cpp" />
@@ -152,6 +154,8 @@
     </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\brush.h" />
+    <ClInclude Include="src\color.h" />
     <ClInclude Include="src\grid.h" />
     <ClInclude Include="src\sdl_util.h" />
     <ClInclude Include="src\simulation.h" />
