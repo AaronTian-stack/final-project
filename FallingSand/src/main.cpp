@@ -4,6 +4,7 @@
 #include <iostream>
 #include <SDL.h>
 
+#include "brush.h"
 #include "sdl_util.h"
 #include "simulation.h"
 
@@ -48,7 +49,8 @@ int main()
 	}
 
 	Grid grid(WIDTH, HEIGHT);
-	int brush_size = 10;
+	RandomBrush brush(10, 0.4f);
+	Simulation simulation(&grid);
 
 	const int NUM_PARTICLES = 2;
 	const Particle PARTICLES[NUM_PARTICLES] = {
@@ -74,8 +76,13 @@ int main()
 				break;
 			}
 		}
-
-		Simulation::SimulateBottomToTop(grid);
+		// start timer
+		static Uint32 last_time = SDL_GetTicks64();
+		simulation.update();
+		static Uint32 current_time = SDL_GetTicks64();
+#ifdef NDEBUG
+		std::cout << "Simulation time: " << current_time - last_time << " ms" << std::endl;
+#endif
 
 		// RENDER
 		void* pixels;
@@ -86,48 +93,27 @@ int main()
 			break;
 		}
 
-		int mouseX, mouseY;
-		SDL_GetMouseState(&mouseX, &mouseY);
-		// when clicked on grid, set particle
-		if (SDL_GetMouseState(&mouseX, &mouseY) & SDL_BUTTON(SDL_BUTTON_LEFT))
-		{
-			// set all pixels within brush size to particle
-			for (int y = mouseY - brush_size; y < mouseY + brush_size; ++y)
-			{
-				for (int x = mouseX - brush_size; x < mouseX + brush_size; ++x)
-				{
-					auto x2 = x - mouseX;
-					x2 = x2 * x2;
-					auto y2 = y - mouseY;
-					y2 = y2 * y2;
-					if (0 <= x && x < WIDTH && 0 <= y && y < HEIGHT && x2 + y2 < brush_size * brush_size)
-					{
-						Particle p = PARTICLES[particle];
-						if (grid.isEmpty(x, y) || p.priority < grid.get(x, y).priority)
-						{
-							grid.set(x, y, PARTICLES[particle]);
-						}
-					}
-				}
-			}
-		}
+		// click to draw
+		brush.draw_particles(grid, Particle::SAND);
 
 		uint32_t* pixelData = static_cast<uint32_t*>(pixels);
 		for (int y = 0; y < HEIGHT; ++y)
 		{
 			for (int x = 0; x < WIDTH; ++x)
 			{
-				auto& particle = grid.get(x, y);
-				pixelData[y * (pitch / 4) + x] = particle.color.hex();
+				auto particle = grid.get(x, y);
+				pixelData[y * (pitch / 4) + x] = particle->color.hex();
 			}
 		}
+		int mouseX, mouseY;
+		SDL_GetMouseState(&mouseX, &mouseY);
 		SDL_Util::draw_circle(
 			{
 				.pixelData = pixelData,
 				.width = WIDTH,
 				.height = HEIGHT
 			}, 
-			mouseX, mouseY, brush_size, 0xFFFFFF);
+			mouseX, mouseY, brush.get_brush_size(), 0xFFFFFF);
 
 		SDL_UnlockTexture(texture);
 
