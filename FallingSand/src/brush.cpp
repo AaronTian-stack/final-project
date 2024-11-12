@@ -14,8 +14,11 @@ void Brush::draw_particles(Grid& grid, Particle::ID particle_type)
 {
 	int mouseX, mouseY;
 	// when clicked on grid, set particle
-	if (SDL_GetMouseState(&mouseX, &mouseY) & SDL_BUTTON(SDL_BUTTON_LEFT))
+	auto left_click = SDL_GetMouseState(&mouseX, &mouseY) & SDL_BUTTON(SDL_BUTTON_LEFT);
+	auto right_click = SDL_GetMouseState(&mouseX, &mouseY) & SDL_BUTTON(SDL_BUTTON_RIGHT);
+	if (left_click || right_click)
 	{
+		if (right_click) particle_type = Particle::EMPTY;
 		// set all pixels within brush size to particle
 		for (int y = mouseY - brush_size; y < mouseY + brush_size; ++y)
 		{
@@ -33,12 +36,22 @@ void Brush::draw_particles(Grid& grid, Particle::ID particle_type)
 
 				if (x2 + y2 < brush_size * brush_size && should_draw(local_x, local_y))
 				{
-					auto new_color = Color_Util::vary_color(color);
-					grid.set(x, y, {particle_type, 0, 0, {0, 0}, new_color });
+					if (particle_type != Particle::EMPTY)
+						color = Color_Util::vary_color(color);
+					grid.set(x, y, {particle_type, 0, 0, {0, 0}, color });
 				}
 			}
 		}
 	}
+}
+
+CircleBrush::CircleBrush(int brush_size) : Brush(brush_size)
+{
+}
+
+bool CircleBrush::should_draw(int local_x, int local_y)
+{
+	return true;
 }
 
 RandomBrush::RandomBrush(int brush_size, float prob) : Brush(brush_size), mt(rd()), dist(0, 1), prob(prob)

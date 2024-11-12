@@ -11,6 +11,7 @@
 int main()
 {
 	// TODO: use SDL to draw UI, debugging grids/lines...
+	// Slows down at 1920x1000 (8 ms simulation)
 	const int WIDTH = 800;
 	const int HEIGHT = 600;
 
@@ -20,7 +21,7 @@ int main()
 		throw std::runtime_error("Unable to initialize SDL");
 	}
 
-	SDL_Window* window = SDL_CreateWindow("CIS 5660 | Falling Sand", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_SHOWN);
+	SDL_Window* window = SDL_CreateWindow("CIS 5660 | Falling Sand", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
 	if (window == nullptr)
 	{
 		SDL_Log("Unable to create window: %s", SDL_GetError());
@@ -48,13 +49,17 @@ int main()
 		throw std::runtime_error("Unable to create texture");
 	}
 
+	int brush_width = 10;
+
 	Grid grid(WIDTH, HEIGHT);
-	RandomBrush brush(10, 0.4f);
+	CircleBrush circle_brush(brush_width);
+	RandomBrush rand_brush(brush_width, 0.1f);
 	Simulation simulation(&grid);
 
 	Particle::ID curr_particle = Particle::SAND;
 
 	bool quit = false;
+	float delta = 0.f;
 	while (!quit)
 	{
 		SDL_Event event;
@@ -73,7 +78,7 @@ int main()
 		}
 		// start timer
 		static Uint32 last_time = SDL_GetTicks64();
-		simulation.update();
+		simulation.update(delta);
 		static Uint32 current_time = SDL_GetTicks64();
 #ifdef NDEBUG
 		std::cout << "Simulation time: " << current_time - last_time << " ms" << std::endl;
@@ -89,7 +94,10 @@ int main()
 		}
 
 		// click to draw
-		brush.draw_particles(grid, curr_particle);
+		if (curr_particle == Particle::EMPTY)
+			circle_brush.draw_particles(grid, curr_particle);
+		else
+			rand_brush.draw_particles(grid, curr_particle);
 
 		uint32_t* pixelData = static_cast<uint32_t*>(pixels);
 		for (int y = 0; y < HEIGHT; ++y)
@@ -108,7 +116,7 @@ int main()
 				.width = WIDTH,
 				.height = HEIGHT
 			}, 
-			mouseX, mouseY, brush.get_brush_size(), 0xFFFFFF);
+			mouseX, mouseY, rand_brush.get_brush_size(), 0xFFFFFF);
 
 		SDL_UnlockTexture(texture);
 
@@ -116,6 +124,12 @@ int main()
 		SDL_RenderClear(renderer);
 		SDL_RenderCopy(renderer, texture, nullptr, nullptr);
 		SDL_RenderPresent(renderer);
+
+		static Uint32 frame_time = SDL_GetTicks64();
+		delta = (frame_time - last_time) / 1000.f;
+#ifdef NDEBUG
+		std::cout << "Delta time: " << delta << " s" << std::endl;
+#endif
 
 		//SDL_Delay(16); // wait 16 ms (frame lock)
 	}

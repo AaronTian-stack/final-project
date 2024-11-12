@@ -32,6 +32,13 @@ public:
 	virtual ~Brush() = default;
 };
 
+class CircleBrush : public Brush
+{
+	public:
+	explicit CircleBrush(int brush_size);
+	bool should_draw(int local_x, int local_y) override;
+};
+
 class RandomBrush : public Brush
 {
 	std::random_device rd;

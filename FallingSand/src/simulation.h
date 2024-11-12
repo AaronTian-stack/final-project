@@ -13,13 +13,13 @@ class Simulation
 	float gravity;
 public:
 	Simulation(Grid* grid);
-	void update();
+	void update(float delta);
 
 	// returns closest position of particle in velocity (vx, vy) from (x, y)
 	XMINT2 raycast(int x, int y, int vx, int vy);
 
 	// Only particles with gravity can be simulated bottom to top. Would not work with smoke for example
-	void simulate_bottom_to_top();
+	void simulate_bottom_to_top(float delta);
 	// TODO: insert logic to update individual particles
 	void sand(Particle& particle, int x, int y);
 };

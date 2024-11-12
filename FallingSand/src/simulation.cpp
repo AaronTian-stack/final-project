@@ -1,13 +1,14 @@
 ﻿#include "simulation.h"
 
-Simulation::Simulation(Grid* grid) : mt(rd()), dist(0.0f, 1.0f), grid(grid), gravity(0.2f)
+Simulation::Simulation(Grid* grid) : mt(rd()), dist(0.0f, 1.0f), grid(grid), gravity(4.0f)
 {
+	// TODO: make gravity changeable at runtime
 	assert(grid);
 }
 
-void Simulation::update()
+void Simulation::update(float delta)
 {
-	simulate_bottom_to_top();
+	simulate_bottom_to_top(delta);
 }
 
 XMINT2 Simulation::raycast(int x, int y, int vx, int vy)
@@ -28,7 +29,7 @@ XMINT2 Simulation::raycast(int x, int y, int vx, int vy)
 	while (true)
 	{
 		if (x == x1 && y == y1) return { x1, y1 };
-;		int e2 = 2 * error;
+		int e2 = 2 * error;
 		if (e2 >= dy)
 		{
 			error = error + dy;
@@ -51,7 +52,7 @@ XMINT2 Simulation::raycast(int x, int y, int vx, int vy)
 	}
 }
 
-void Simulation::simulate_bottom_to_top()
+void Simulation::simulate_bottom_to_top(float delta)
 {
 	// iterate from bottom to top
 	for (int y = grid->get_height() - 1; y >= 0; --y)
@@ -71,7 +72,7 @@ void Simulation::simulate_bottom_to_top()
 				// TODO: use bitmask to determine whether to apply gravity
 				auto below = grid->get(x, y + 1);
 				if (below && below->id == Particle::EMPTY)
-					particle->velocity.y += gravity;
+					particle->velocity.y += gravity * delta;
 
 				sand(*particle, x, y);
 			}
