@@ -216,7 +216,7 @@ void Simulation::air(Particle* p, int x, int y)
 	}
 }
 
-void Simulation::flammable(Particle* p, int x, int y)
+bool Simulation::burns(Particle* p, int x, int y)
 {
 	float burnProbability = 0;
 	int dx[] = { 1, 1, 0, -1, -1, -1,  0,  1 };
@@ -230,13 +230,24 @@ void Simulation::flammable(Particle* p, int x, int y)
 			burnProbability += 0.5 + dist(mt) * 0.5;
 	}
 
-	if (dist(mt) < p->flammability * burnProbability)
+	return dist(mt) < p->flammability * burnProbability;
+}
+
+bool Simulation::dissolves(Particle* p, int x, int y)
+{
+	float dissolveProbability = 0;
+	int dx[] = { 1, 1, 0, -1, -1, -1,  0,  1 };
+	int dy[] = { 0, 1, 1,  1,  0, -1, -1, -1 };
+
+	for (int i = 0; i < 8; ++i)
 	{
-		grid->set(x, y, Particle::FIRE);
-		// TODO: customize burn time based on particle type
-		if (grid->get(x, y))
-			grid->get(x, y)->life_time = 1.0 + dist(mt);
+		int nx = x + dx[i];
+		int ny = y + dy[i];
+		if (grid->is_liquid(nx, ny))
+			dissolveProbability += 0.5 + dist(mt) * 0.5;
 	}
+
+	return dist(mt) < p->dissolvability * dissolveProbability;
 }
 
 void Simulation::sand(Particle* p, int x, int y)
@@ -251,7 +262,12 @@ void Simulation::water(Particle* p, int x, int y)
 
 void Simulation::wood(Particle* p, int x, int y)
 {
-	flammable(p, x, y);
+	if (burns(p, x, y))
+	{
+		grid->set(x, y, Particle::FIRE);
+		// TODO: customize burn time based on particle type
+		grid->get(x, y)->life_time = 1.0 + dist(mt);
+	}
 }
 
 void Simulation::smoke(Particle* p, int x, int y)
@@ -263,21 +279,54 @@ void Simulation::smoke(Particle* p, int x, int y)
 
 void Simulation::fire(Particle* p, int x, int y)
 {
-	if (p->life_time < 0.1f + 0.1f * dist(mt))
+	if (dissolves(p, x, y))
+	{
+		// Liquid puts out fire
+		grid->set(x, y, Particle::SMOKE);
+	}
+	else if (p->life_time < 0.1f + 0.1f * dist(mt))
 	{
 		// Become smoke
 		grid->set(x, y, Particle::SMOKE);
-		if (grid->get(x, y))
-			grid->get(x, y)->burning = true;
+		grid->get(x, y)->burning = true;
 	}
 }
 
 void Simulation::salt(Particle* p, int x, int y)
 {
+	if (dissolves(p, x, y))
+		p->dying = true;
 	solid(p, x, y);
 }
 
 void Simulation::acid(Particle* p, int x, int y)
 {
+	if (grid->is_solid(x, y + 1))
+	{
+		if (dist(mt) < grid->corrodibility(x, y + 1))
+			grid->set(x, y + 1, Particle::EMPTY);
+	}
+	else if (grid->is_solid(x - 1, y + 1))
+	{
+		if (dist(mt) < grid->corrodibility(x - 1, y + 1))
+			grid->set(x - 1, y + 1, Particle::EMPTY);
+	}
+	else if (grid->is_solid(x + 1, y + 1))
+	{
+		if (dist(mt) < grid->corrodibility(x + 1, y + 1))
+			grid->set(x + 1, y + 1, Particle::EMPTY);
+	}
+	else if (grid->is_solid(x - 1, y))
+	{
+		if (dist(mt) < grid->corrodibility(x - 1, y))
+			grid->set(x - 1, y, Particle::EMPTY);
+	}
+	else if (grid->is_solid(x + 1, y))
+	{
+		if (dist(mt) < grid->corrodibility(x + 1, y))
+			grid->set(x + 1, y, Particle::EMPTY);
+	}
+	if (dissolves(p, x, y))
+		p->dying = true;
 	liquid(p, x, y);
 }

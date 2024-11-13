@@ -33,6 +33,7 @@ struct Particle
 	float life_time = 0;
 	float density = 0;
 	float flammability = 0;
+	float dissolvability = 0;
 	float corrodibility = 0;
 	bool has_gravity = false;
 	bool simulate_reverse = false;
@@ -63,4 +64,5 @@ public:
 	bool is_solid(int x, int y);
 	bool is_burning(int x, int y);
 	bool is_denser(Particle* particle, int x, int y);
+	float corrodibility(int x, int y);
 };
