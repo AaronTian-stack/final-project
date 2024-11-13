@@ -17,6 +17,7 @@ struct Particle
 		SMOKE,
 		FIRE,
 		EMPTY,
+		END,
 	};
 	Type type = EMPTY;
 	XMFLOAT2 velocity = { 0, 0 };
@@ -24,9 +25,9 @@ struct Particle
 	float life_time = 0;
 	float density = 0;
 	float flammability = 0;
-	bool is_air = true;
-	bool has_gravity = false;
-	bool simulate_reverse = false;
+	float is_air = true;
+	float has_gravity = false;
+	float simulate_reverse = false;
 };
 
 class Grid
