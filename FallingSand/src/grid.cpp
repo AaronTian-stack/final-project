@@ -48,11 +48,15 @@ void Grid::set(int x, int y, Particle::Type particle_type)
 		break;
 	case Particle::WATER:
 		color = Color(0x0000FF);
-		particle = { particle_type, Particle::LIQUID, {0, 0}, color, 0, 50, 0, 0, 0, true, false, false};
+		particle = { particle_type, Particle::LIQUID, {0, 0}, color, 0, 50, 0, 0, 0, true, false, false };
+		break;
+	case Particle::STONE:
+		color = Color(0x696969);
+		particle = { particle_type, Particle::SOLID, {0, 0}, color, 0, 500, 0, 0, 0, false, false, false };
 		break;
 	case Particle::WOOD:
 		color = Color(0x362312);
-		particle = { particle_type, Particle::SOLID, {0, 0}, color, 1, 200, 0.025, 0, 0.1, false, false, false };
+		particle = { particle_type, Particle::SOLID, {0, 0}, color, 0, 200, 0.025, 0, 0.1, false, false, false };
 		break;
 	case Particle::SMOKE:
 		color = Color(0x888888);

@@ -105,7 +105,7 @@ int main()
 
 		// click to draw
 		// TODO: customize brush based on particle via Particle class
-		if (curr_particle == Particle::EMPTY || curr_particle == Particle::WOOD)
+		if (curr_particle == Particle::EMPTY || curr_particle == Particle::STONE || curr_particle == Particle::WOOD)
 			circle_brush.draw_particles(grid, curr_particle);
 		else
 			rand_brush.draw_particles(grid, curr_particle);

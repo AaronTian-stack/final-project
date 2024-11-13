@@ -13,6 +13,7 @@ struct Particle
 	{
 		SAND,
 		WATER,
+		STONE,
 		WOOD,
 		SMOKE,
 		FIRE,
