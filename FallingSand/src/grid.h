@@ -17,7 +17,7 @@ struct Particle
 	};
 	ID id = EMPTY; // 2
 	uint16_t updated = 0; // 2
-	float life = 0; // 4
+	float life_time = 0; // 4
 	XMFLOAT2 velocity = { 0, 0 }; // 8
 	Color color = 0x000000; // 4
 };

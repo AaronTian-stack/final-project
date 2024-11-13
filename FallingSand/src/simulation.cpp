@@ -16,7 +16,7 @@ XMINT2 Simulation::raycast(int x, int y, int vx, int vy)
 	// don't really care about a precise position of particles so just use bresenham
 	int x1 = x + vx;
 	int y1 = y + vy;
-	
+
 	int dx = abs(x1 - x);
 	int sx = x < x1 ? 1 : -1;
 	int dy = -abs(y1 - y);
@@ -41,8 +41,7 @@ XMINT2 Simulation::raycast(int x, int y, int vx, int vy)
 			y = y + sy;
 		}
 
-		auto get = grid->get(x, y);
-		if (!get || grid->get(x, y)->id != Particle::EMPTY)
+		if (!grid->is_empty(x, y))
 		{
 			return { prev_x, prev_y };
 		}
@@ -64,23 +63,26 @@ void Simulation::simulate_bottom_to_top(float delta)
 			auto x = rand < 0.5f ? xr : grid->get_width() - 1 - xr;
 			auto particle = grid->get(x, y);
 
-			// TODO: apply gravity
+			// TODO: use bitmask to determine whether to apply gravity
+			if (grid->is_empty(x, y + 1))
+				particle->velocity.y += gravity * delta;
 
-			// TODO: replace with switch statement
-			if (particle->id == Particle::SAND)
+			switch (particle->id)
 			{
-				// TODO: use bitmask to determine whether to apply gravity
-				auto below = grid->get(x, y + 1);
-				if (below && below->id == Particle::EMPTY)
-					particle->velocity.y += gravity * delta;
-
+			case Particle::SAND:
 				sand(*particle, x, y);
+				break;
+			case Particle::WATER:
+				water(*particle, x, y);
+				break;
+			default:
+				break;
 			}
 		}
 	}
 }
 
-void Simulation::sand(Particle& particle, int x, int y)
+void Simulation::moveWithVelocity(Particle& particle, int x, int y)
 {
 	// try to move to next position with velocity
 
@@ -92,27 +94,55 @@ void Simulation::sand(Particle& particle, int x, int y)
 	// move the particle to raycasted empty position
 	if (x != rc.x || y != rc.y)
 		grid->swap(x, y, rc.x, rc.y);
+}
 
-	// then apply sifting logic
-	if (y < grid->get_height() - 1)
+
+void Simulation::sand(Particle& particle, int x, int y)
+{
+	moveWithVelocity(particle, x, y);
+	if (grid->is_empty(x, y + 1))
 	{
-		auto below = grid->get(x, y + 1);
-		bool moved = false;
-		if (below->id == Particle::EMPTY)
-		{
-			grid->swap(x, y, x, y + 1);
-			moved = true;
-		}
-		else if (x > 0 && grid->get(x - 1, y + 1)->id == Particle::EMPTY)
-		{
-			grid->swap(x, y, x - 1, y + 1);
-			moved = true;
-		}
-		else if (x < grid->get_width() - 1 && grid->get(x + 1, y + 1)->id == Particle::EMPTY)
-		{
-			grid->swap(x, y, x + 1, y + 1);
-			moved = true;
-		}
-		if (!moved) particle.velocity.y = 0;
+		grid->swap(x, y, x, y + 1);
+	}
+	else if (grid->is_empty(x - 1, y + 1))
+	{
+		grid->swap(x, y, x - 1, y + 1);
+	}
+	else if (grid->is_empty(x + 1, y + 1))
+	{
+		grid->swap(x, y, x + 1, y + 1);
+	}
+	else
+	{
+		particle.velocity.y = 0;
+	}
+}
+
+void Simulation::water(Particle& particle, int x, int y)
+{
+	moveWithVelocity(particle, x, y);
+	if (grid->is_empty(x, y + 1))
+	{
+		grid->swap(x, y, x, y + 1);
+	}
+	else if (grid->is_empty(x - 1, y + 1))
+	{
+		grid->swap(x, y, x - 1, y + 1);
+	}
+	else if (grid->is_empty(x + 1, y + 1))
+	{
+		grid->swap(x, y, x + 1, y + 1);
+	}
+	else if (grid->is_empty(x - 1, y))
+	{
+		grid->swap(x, y, x - 1, y);
+	}
+	else if (grid->is_empty(x + 1, y))
+	{
+		grid->swap(x, y, x + 1, y);
+	}
+	else
+	{
+		particle.velocity.y = 0;
 	}
 }

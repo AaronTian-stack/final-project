@@ -52,6 +52,6 @@ void Grid::swap(int x1, int y1, int x2, int y2)
 
 bool Grid::is_empty(int x, int y)
 {
-	if (!is_valid(x, y)) return true; // assume out of bounds is solid
+	if (!is_valid(x, y)) return false; // assume out of bounds is solid
 	return get(x, y)->id == Particle::EMPTY;
 }
