@@ -20,8 +20,15 @@ public:
 
 	// Only particles with gravity can be simulated bottom to top. Would not work with smoke for example
 	void simulate(float delta);
+	void solid(Particle* particle, int x, int y);
+	void liquid(Particle* particle, int x, int y);
+	void air(Particle* particle, int x, int y);
+	void flammable(Particle* particle, int x, int y);
 	void sand(Particle* particle, int x, int y);
 	void water(Particle* particle, int x, int y);
 	void smoke(Particle* particle, int x, int y);
+	void wood(Particle* particle, int x, int y);
 	void fire(Particle* particle, int x, int y);
+	void salt(Particle* particle, int x, int y);
+	void acid(Particle* particle, int x, int y);
 };

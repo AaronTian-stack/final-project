@@ -43,25 +43,33 @@ void Grid::set(int x, int y, Particle::Type particle_type)
 	{
 	case Particle::SAND:
 		color = Color(0xFFD700);
-		particle = { particle_type, {0, 0}, Color_Util::vary_color(color), 0, 100, 0, false, true, false };
+		particle = { particle_type, Particle::SOLID, {0, 0}, Color_Util::vary_color(color), 0, 100, 0, 0.05, true, false, false };
 		break;
 	case Particle::WATER:
 		color = Color(0x0000FF);
-		particle = { particle_type, {0, 0}, color, 0, 50, 0, false, true, false };
+		particle = { particle_type, Particle::LIQUID, {0, 0}, color, 0, 50, 0, 0, true, false, false};
 		break;
 	case Particle::WOOD:
 		color = Color(0x362312);
-		particle = { particle_type, {0, 0}, color, 0, 200, 0.5, false, false, false };
+		particle = { particle_type, Particle::SOLID, {0, 0}, color, 0, 200, 0.025, 0.2, false, false, false };
 		break;
 	case Particle::SMOKE:
 		color = Color(0x888888);
-		life_time = 1.0 + dist(mt);
-		particle = { particle_type, {0, 0}, Color_Util::vary_color(color), life_time, 1, 0, true, false, true };
+		life_time = 0.1 + 2.0 * dist(mt);
+		particle = { particle_type, Particle::AIR, {0, 0}, Color_Util::vary_color(color), life_time, 1, 0, 0, false, true, false, true };
 		break;
 	case Particle::FIRE:
 		color = Color(0xFF4500);
-		life_time = 3.0 + 2 * dist(mt);
-		particle = { particle_type, {0, 0}, Color_Util::vary_color(color), life_time, 2, 0, true, false, true };
+		life_time = 0.1 + 0.1 * dist(mt);
+		particle = { particle_type, Particle::AIR, { 0, 0 }, Color_Util::vary_color(color), life_time, 2, 0, 0, false, true, true, true };
+		break;
+	case Particle::SALT:
+		color = Color(0xBBBBBB);
+		particle = { particle_type, Particle::SOLID, { 0, 0 }, Color_Util::vary_color(color), 0, 90, 0, 0.5, true, false, false };
+		break;
+	case Particle::ACID:
+		color = Color(0x8FFE09);
+		particle = { particle_type, Particle::LIQUID, { 0, 0 }, color, 0, 60, 0, 0, true, false, false };
 		break;
 	default:
 		particle = { particle_type };
@@ -82,18 +90,30 @@ void Grid::swap(int x1, int y1, int x2, int y2)
 
 bool Grid::is_air(int x, int y)
 {
-	if (!is_valid(x, y)) return false; // assume out of bounds is solid
-	return get(x, y)->is_air;
+	if (!is_valid(x, y)) return false;
+	return get(x, y)->matter == Particle::AIR;
+}
+
+bool Grid::is_liquid(int x, int y)
+{
+	if (!is_valid(x, y)) return false;
+	return get(x, y)->matter == Particle::LIQUID;
+}
+
+bool Grid::is_solid(int x, int y)
+{
+	if (!is_valid(x, y)) return false;
+	return get(x, y)->matter == Particle::SOLID;
+}
+
+bool Grid::is_burning(int x, int y)
+{
+	if (!is_valid(x, y)) return false;
+	return get(x, y)->burning;
 }
 
 bool Grid::is_denser(Particle* particle, int x, int y)
 {
-	if (!is_valid(x, y)) return false; // assume out of bounds is solid
+	if (!is_valid(x, y)) return false; // assume out of bounds infinitely dense
 	return get(x, y)->density < particle->density;
-}
-
-bool Grid::catches_fire(int x, int y)
-{
-	if (!is_valid(x, y)) return false;
-	return get(x, y)->flammability > dist(mt);
 }

@@ -70,7 +70,17 @@ int main()
 				quit = true;
 				break;
 			case SDL_KEYDOWN:
-				curr_particle = static_cast<Particle::Type>((curr_particle + 1) % Particle::EMPTY);
+				switch (event.key.keysym.sym)
+				{
+				case SDLK_LEFT:
+					curr_particle = static_cast<Particle::Type>((Particle::EMPTY + curr_particle - 1) % Particle::EMPTY);
+					break;
+				case SDLK_RIGHT:
+					curr_particle = static_cast<Particle::Type>((curr_particle + 1) % Particle::EMPTY);
+					break;
+				default:
+					break;
+				}
 				break;
 			default:
 				break;
