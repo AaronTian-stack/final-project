@@ -56,7 +56,7 @@ int main()
 	RandomBrush rand_brush(brush_width, 0.1f);
 	Simulation simulation(&grid);
 
-	Particle::ID curr_particle = Particle::SAND;
+	ParticleType curr_particle = SAND;
 
 	bool quit = false;
 	float delta = 0.f;
@@ -70,7 +70,7 @@ int main()
 				quit = true;
 				break;
 			case SDL_KEYDOWN:
-				curr_particle = static_cast<Particle::ID>((curr_particle + 1) % Particle::END);
+				curr_particle = static_cast<ParticleType>((curr_particle + 1) % EMPTY);
 				break;
 			default:
 				break;
@@ -94,7 +94,8 @@ int main()
 		}
 
 		// click to draw
-		if (curr_particle == Particle::EMPTY)
+		// TODO: customize brush based on particle via Particle class
+		if (curr_particle == EMPTY || curr_particle == WOOD)
 			circle_brush.draw_particles(grid, curr_particle);
 		else
 			rand_brush.draw_particles(grid, curr_particle);

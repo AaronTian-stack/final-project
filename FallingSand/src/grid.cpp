@@ -1,12 +1,11 @@
 ﻿#include "grid.h"
+#include "particle.h"
 
 #include <iostream>
 #include <ostream>
 
-Grid::Grid(unsigned width, unsigned height)
+Grid::Grid(unsigned int width, unsigned int height) : width(width), height(height), mt(rd()), dist(0.0f, 1.0f)
 {
-	this->width = width;
-	this->height = height;
 	this->grid = new Particle[static_cast<size_t>(width * height)];
 }
 
@@ -50,8 +49,20 @@ void Grid::swap(int x1, int y1, int x2, int y2)
 	set(x2, y2, temp);
 }
 
-bool Grid::is_empty(int x, int y)
+bool Grid::is_air(int x, int y)
 {
 	if (!is_valid(x, y)) return false; // assume out of bounds is solid
-	return get(x, y)->id == Particle::EMPTY;
+	return get(x, y)->is_air;
+}
+
+bool Grid::is_denser(const Particle& particle, int x, int y)
+{
+	if (!is_valid(x, y)) return false; // assume out of bounds is solid
+	return get(x, y)->density < particle.density;
+}
+
+bool Grid::catches_fire(int x, int y)
+{
+	if (!is_valid(x, y)) return false;
+	return get(x, y)->flammability < dist(mt);
 }

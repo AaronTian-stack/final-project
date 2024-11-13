@@ -1,18 +1,7 @@
 ﻿#pragma once
 #include <random>
 
-#include "grid.h"
-#include <tsl/robin_map.h>
-
-struct ParticleColors
-{
-	inline static tsl::robin_map<Particle::ID, Color> map =
-	{
-		{ Particle::EMPTY, Color(0x000000) },
-		{ Particle::SAND, Color(0xFFD700) },
-		{ Particle::WATER, Color(0x0000FF) },
-	};
-};
+#include "particle.h"
 
 // make child class for different brush patterns
 class Brush
@@ -25,7 +14,7 @@ public:
 
 	// brush pattern function
 	virtual bool should_draw(int local_x, int local_y) = 0;
-	void draw_particles(Grid& grid, Particle::ID particle_type);
+	void draw_particles(Grid& grid, ParticleType particle_type);
 	int get_brush_size() const { return brush_size; }
 	void set_brush_size(int size) { brush_size = size; }
 
