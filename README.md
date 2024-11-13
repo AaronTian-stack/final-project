@@ -6,14 +6,18 @@ This is it! The culmination of your procedural graphics experience this semester
 Link: https://docs.google.com/document/d/1daQ1Lxg7-4aTjbJ6nWlsPGlSO5K-yVkOK4bKGH1HCEc/edit?usp=sharing
 
 ## Milestone 1: Implementation part 1 (due 11/13)
-Begin implementing your engine! Don't worry too much about polish or parameter tuning -- this week is about getting together the bulk of your generator implemented. By the end of the week, even if your visuals are crude, the majority of your generator's functionality should be done.
+Milestone progress:
 
-Put all your code in your forked repository.
+- Basic automata grid + simulator implemented
+- Basic particle classes implemented (sand, water, wood, fire, smoke)
+- Basic point-and-click UI
 
-Submission: Add a new section to your README titled: Milestone #1, which should include
-- written description of progress on your project goals. If you haven't hit all your goals, what's giving you trouble?
-- Examples of your generators output so far
-We'll check your repository for updates. No need to create a new pull request.
+Example outputs:
+
+<img width="300" src="https://github.com/user-attachments/assets/abdad680-428e-4779-bf47-721ce717f2e9" />
+
+<img width="300" src="https://github.com/user-attachments/assets/62dc16fc-67bb-48ce-9d0e-2dacaba00c25" />
+
 ## Milestone 2: Implementation part 2 (due 11/25)
 We're over halfway there! This week should be about fixing bugs and extending the core of your generator. Make sure by the end of this week _your generator works and is feature complete._ Any core engine features that don't make it in this week should be cut! Don't worry if you haven't managed to exactly hit your goals. We're more interested in seeing proof of your development effort than knowing your planned everything perfectly. 
 
