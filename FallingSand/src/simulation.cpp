@@ -301,32 +301,27 @@ void Simulation::salt(Particle* p, int x, int y)
 
 void Simulation::acid(Particle* p, int x, int y)
 {
-	if (grid->is_solid(x, y + 1))
+	int dx[] = { 0, -1, 1, -1, 1 };
+	int dy[] = { 1, 1, 1, 0, 0 };
+
+	for (int i = 0; i < 5; ++i)
 	{
-		if (dist(mt) < grid->corrodibility(x, y + 1))
-			grid->set(x, y + 1, Particle::EMPTY);
+		int nx = x + dx[i];
+		int ny = y + dy[i];
+		if (grid->is_solid(nx, ny))
+		{
+			auto np = grid->get(nx, ny);
+			if (np && dist(mt) < np->corrodibility)
+			{
+				grid->set(nx, ny, Particle::EMPTY);
+				break;
+			}
+				
+		}
 	}
-	else if (grid->is_solid(x - 1, y + 1))
-	{
-		if (dist(mt) < grid->corrodibility(x - 1, y + 1))
-			grid->set(x - 1, y + 1, Particle::EMPTY);
-	}
-	else if (grid->is_solid(x + 1, y + 1))
-	{
-		if (dist(mt) < grid->corrodibility(x + 1, y + 1))
-			grid->set(x + 1, y + 1, Particle::EMPTY);
-	}
-	else if (grid->is_solid(x - 1, y))
-	{
-		if (dist(mt) < grid->corrodibility(x - 1, y))
-			grid->set(x - 1, y, Particle::EMPTY);
-	}
-	else if (grid->is_solid(x + 1, y))
-	{
-		if (dist(mt) < grid->corrodibility(x + 1, y))
-			grid->set(x + 1, y, Particle::EMPTY);
-	}
+
 	if (dissolves(p, x, y))
 		p->dying = true;
+
 	liquid(p, x, y);
 }

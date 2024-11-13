@@ -121,13 +121,14 @@ int main()
 		}
 		int mouseX, mouseY;
 		SDL_GetMouseState(&mouseX, &mouseY);
+		Color mouseColor = ParticleColors::map.at(curr_particle);
 		SDL_Util::draw_circle(
 			{
 				.pixelData = pixelData,
 				.width = WIDTH,
 				.height = HEIGHT
 			}, 
-			mouseX, mouseY, rand_brush.get_brush_size(), 0xFFFFFF);
+			mouseX, mouseY, rand_brush.get_brush_size(), mouseColor.hex());
 
 		SDL_UnlockTexture(texture);
 

@@ -44,6 +44,22 @@ struct Particle
 	uint8_t dying = false; // 1
 };
 
+struct ParticleColors
+{
+	inline static tsl::robin_map<Particle::Type, Color> map =
+	{
+		{ Particle::EMPTY, Color(0x000000) },
+		{ Particle::SAND, Color(0xFFD700) },
+		{ Particle::WATER, Color(0x0000FF) },
+		{ Particle::STONE, Color(0x696969) },
+		{ Particle::WOOD, Color(0x362312) },
+		{ Particle::SMOKE, Color(0x888888) },
+		{ Particle::FIRE, Color(0xFF4500) },
+		{ Particle::SALT, Color(0xDDDDDD) },
+		{ Particle::ACID, Color(0x8FFE09) },
+	};
+};
+
 class Grid
 {
 	std::random_device rd;
@@ -67,5 +83,4 @@ public:
 	bool is_solid(int x, int y);
 	bool is_burning(int x, int y);
 	bool is_denser(Particle* particle, int x, int y);
-	float corrodibility(int x, int y);
 };
