@@ -10,7 +10,7 @@ Brush::Brush(int brush_size) : brush_size(brush_size)
 {
 }
 
-void Brush::draw_particles(Grid& grid, Particle::ID particle_type)
+void Brush::draw_particles(Grid& grid, Particle::Type particle_type)
 {
 	int mouseX, mouseY;
 	// when clicked on grid, set particle
@@ -32,13 +32,9 @@ void Brush::draw_particles(Grid& grid, Particle::ID particle_type)
 
 				auto local_x = x - mouseX;
 
-				auto color = ParticleColors::map.at(particle_type);
-
 				if (x2 + y2 < brush_size * brush_size && should_draw(local_x, local_y))
 				{
-					if (particle_type != Particle::EMPTY)
-						color = Color_Util::vary_color(color);
-					grid.set(x, y, {particle_type, 0, 0, {0, 0}, color });
+					grid.set(x, y, particle_type);
 				}
 			}
 		}

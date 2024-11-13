@@ -19,9 +19,9 @@ public:
 	XMINT2 raycast(int x, int y, int vx, int vy);
 
 	// Only particles with gravity can be simulated bottom to top. Would not work with smoke for example
-	void simulate_bottom_to_top(float delta);
-	// TODO: insert logic to update individual particles
-	void moveWithVelocity(Particle& particle, int x, int y);
-	void sand(Particle& particle, int x, int y);
-	void water(Particle& particle, int x, int y);
+	void simulate(float delta);
+	void sand(Particle* particle, int x, int y);
+	void water(Particle* particle, int x, int y);
+	void smoke(Particle* particle, int x, int y);
+	void fire(Particle* particle, int x, int y);
 };

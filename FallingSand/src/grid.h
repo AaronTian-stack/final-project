@@ -1,30 +1,39 @@
 ﻿#pragma once
 
 #include <cstdint>
+#include <random>
 #include <DirectXMath.h>
 
 #include "color.h"
+#include <tsl/robin_map.h>
 
-// https://www.intel.com/content/www/us/en/docs/programmable/683176/18-1/aligning-a-struct-with-or-witout-padding.html#:~:text=A%20proper%20struct%20alignment%20means,increases%20with%20the%20increasing%20alignment
 struct Particle
 {
-	enum ID : uint16_t
+	enum Type
 	{
-		EMPTY = 0,
-		SAND = 1,
-		WATER = 2,
-		END,
+		SAND,
+		WATER,
+		WOOD,
+		SMOKE,
+		FIRE,
+		EMPTY,
 	};
-	ID id = EMPTY; // 2
-	uint16_t updated = 0; // 2
-	float life_time = 0; // 4
-	XMFLOAT2 velocity = { 0, 0 }; // 8
-	Color color = 0x000000; // 4
+	Type type = EMPTY;
+	XMFLOAT2 velocity = { 0, 0 };
+	Color color = 0x000000;
+	float life_time = 0;
+	float density = 0;
+	float flammability = 0;
+	bool is_air = true;
+	bool has_gravity = false;
+	bool simulate_reverse = false;
 };
 
 class Grid
 {
-	const Particle OUT_OF_BOUNDS = { Particle::END, 0, 0, {0, 0}, 0x000000 };
+	std::random_device rd;
+	std::mt19937 mt;
+	std::uniform_real_distribution<float> dist;
 	Particle* grid; // save overhead of size, capacity from vector
 	unsigned int width;
 	unsigned int height;
@@ -32,10 +41,12 @@ public:
 	Grid(unsigned int width, unsigned int height);
 	~Grid();
 	Particle* get(int x, int y) const;
-	void set(int x, int y, const Particle& particle);
+	void set(int x, int y, Particle::Type particle);
 	void swap(int x1, int y1, int x2, int y2);
 	unsigned int get_width() const { return width; }
 	unsigned int get_height() const { return height; }
-	bool is_empty(int x, int y);
-	bool is_valid(int x, int y) const { return x >= 0 && x < width && y>= 0 && y < height; }
+	bool is_air(int x, int y);
+	bool is_denser(Particle* particle, int x, int y);
+	bool catches_fire(int x, int y);
+	bool is_valid(int x, int y) const { return x >= 0 && x < (int) width && y>= 0 && y < (int) height; }
 };
