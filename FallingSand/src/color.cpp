@@ -93,7 +93,7 @@ T Color_Util::generate(T min, T max)
 	return {};
 }
 
-Color Color_Util::vary_color(Color& color)
+Color Color_Util::vary_color(const Color& color)
 {
 	auto hsl = color.to_hsl();
 

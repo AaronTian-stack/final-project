@@ -35,53 +35,90 @@ void Grid::set(int x, int y, Particle::Type particle_type)
 #endif
 		return;
 	}
-	// TODO: abstract this out better
+
 	Particle particle;
-	Color color;
-	// TODO: differentiate life times for different decays: burn, dissolve, corrode
-	float life_time;
 	switch (particle_type)
 	{
 	case Particle::SAND:
-		color = Color(0xFFD700);
-		particle = { particle_type, Particle::SOLID, {0, 0}, Color_Util::vary_color(color), 2, 100, 0, 0, 0.05, true, false, false };
+		particle = {
+			.color = Color_Util::vary_color(Color(0xFFD700)),
+			.density = 100,
+			.corrodibility = 0.05,
+			.matter = Particle::SOLID,
+			.has_gravity = true,
+		};
 		break;
 	case Particle::WATER:
-		color = Color(0x0000FF);
-		particle = { particle_type, Particle::LIQUID, {0, 0}, color, 0, 50, 0, 0, 0, true, false, false };
+		particle = {
+			.color = Color(0x0000FF),
+			.density = 50,
+			.matter = Particle::LIQUID,
+			.has_gravity = true,
+		};
 		break;
 	case Particle::STONE:
-		color = Color(0x696969);
-		particle = { particle_type, Particle::SOLID, {0, 0}, color, 0, 500, 0, 0, 0, false, false, false };
+		particle = {
+			.color = Color(0x696969),
+			.density = 500,
+			.matter = Particle::SOLID,
+		};
 		break;
 	case Particle::WOOD:
-		color = Color(0x362312);
-		particle = { particle_type, Particle::SOLID, {0, 0}, color, 0, 200, 0.025, 0, 0.1, false, false, false };
+		particle = {
+			.color = Color(0x362312),
+			.density = 200,
+			.flammability = 0.025,
+			.corrodibility = 0.1,
+			.matter = Particle::SOLID,
+		};
 		break;
 	case Particle::SMOKE:
-		color = Color(0x888888);
-		life_time = 0.1 + 2.0 * dist(mt);
-		particle = { particle_type, Particle::AIR, {0, 0}, Color_Util::vary_color(color), life_time, 1, 0, 0, 0, false, true, false, true };
+		particle = {
+			.color = Color_Util::vary_color(Color(0x888888)),
+			.life_time = 0.1f + 2.0f * dist(mt),
+			.density = 1,
+			.matter = Particle::AIR,
+			.simulate_reverse = true,
+			.dying = true,
+		};
 		break;
 	case Particle::FIRE:
-		color = Color(0xFF4500);
-		life_time = 0.1 + 0.1 * dist(mt);
-		particle = { particle_type, Particle::AIR, { 0, 0 }, Color_Util::vary_color(color), life_time, 2, 0, 0.5, 0, false, true, true, true };
+		particle = {
+			.color = Color_Util::vary_color(Color(0xFF4500)),
+			.life_time = 0.1f + 0.1f * dist(mt),
+			.density = 2,
+			.dissolvability = 0.5,
+			.matter = Particle::AIR,
+			.simulate_reverse = true,
+			.burning = true,
+			.dying = true,
+		};
 		break;
 	case Particle::SALT:
-		color = Color(0xDDDDDD);
-		life_time = 0.5 + 0.5 * dist(mt);
-		particle = { particle_type, Particle::SOLID, { 0, 0 }, Color_Util::vary_color(color), life_time, 90, 0, 0.05, 0.25, true, false, false };
+		particle = {
+			.color = Color_Util::vary_color(Color(0xDDDDDD)),
+			.life_time = 0.5f + 0.5f * dist(mt),
+			.density = 90,
+			.dissolvability = 0.05,
+			.corrodibility = 0.25,
+			.matter = Particle::SOLID,
+			.has_gravity = true,
+		};
 		break;
 	case Particle::ACID:
-		color = Color(0x8FFE09);
-		life_time = 5 + 5 * dist(mt);
-		particle = { particle_type, Particle::LIQUID, { 0, 0 }, color, life_time, 60, 0, 0.005, 0, true, false, false };
+		particle = {
+			.color = Color(0x8FFE09),
+			.life_time = 5.0f + 5.0f * dist(mt),
+			.density = 60,
+			.dissolvability = 0.005,
+			.matter = Particle::LIQUID,
+			.has_gravity = true,
+		};
 		break;
 	default:
-		particle = { particle_type };
 		break;
 	}
+	particle.type = particle_type;
 	grid[y * width + x] = particle;
 }
 
