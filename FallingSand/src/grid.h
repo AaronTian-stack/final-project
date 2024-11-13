@@ -20,6 +20,7 @@ struct Particle
 		SALT,
 		ACID,
 		EMPTY,
+		END,
 	};
 	enum Matter
 	{
@@ -36,10 +37,10 @@ struct Particle
 	float flammability = 0;
 	float dissolvability = 0;
 	float corrodibility = 0;
-	bool has_gravity = false;
-	bool simulate_reverse = false;
-	bool burning = false;
-	bool dying = false;
+	float has_gravity = false;
+	float simulate_reverse = false;
+	float burning = false;
+	float dying = false;
 };
 
 class Grid
