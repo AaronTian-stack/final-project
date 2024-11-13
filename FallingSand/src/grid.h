@@ -9,25 +9,26 @@
 
 struct Particle
 {
-	enum Type
-	{
-		SAND,
-		WATER,
-		WOOD,
-		SMOKE,
-		FIRE,
-		EMPTY,
-		END,
-	};
-	Type type = EMPTY;
-	XMFLOAT2 velocity = { 0, 0 };
-	Color color = 0x000000;
-	float life_time = 0;
-	float density = 0;
-	float flammability = 0;
-	float is_air = true;
-	float has_gravity = false;
-	float simulate_reverse = false;
+    enum Type : uint16_t
+    {
+        SAND,
+        WATER,
+        WOOD,
+        SMOKE,
+        FIRE,
+        EMPTY,
+        END,
+    };
+    // TOTAL = 32
+    XMFLOAT2 velocity = { 0, 0 }; // 8
+    Color color = 0x000000; // 4
+    float life_time = 0; // 4
+    float density = 0; // 4
+    float flammability = 0; // 4
+    Type type = EMPTY; // 2
+    uint16_t is_air = true; // 2
+    uint16_t has_gravity = false; // 2
+    uint16_t simulate_reverse = false; // 2
 };
 
 class Grid

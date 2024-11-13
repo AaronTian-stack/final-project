@@ -35,38 +35,54 @@ void Grid::set(int x, int y, Particle::Type particle_type)
 #endif
 		return;
 	}
-	// TODO: abstract this out better
+
 	Particle particle;
-	Color color;
-	float life_time;
 	switch (particle_type)
 	{
 	case Particle::SAND:
-		color = Color(0xFFD700);
-		particle = { particle_type, {0, 0}, Color_Util::vary_color(color), 0, 100, 0, false, true, false };
+		particle = {
+			.color = Color_Util::vary_color(Color(0xFFD700)),
+			.density = 100,
+			.is_air = false,
+			.has_gravity = true,
+		};
 		break;
 	case Particle::WATER:
-		color = Color(0x0000FF);
-		particle = { particle_type, {0, 0}, color, 0, 50, 0, false, true, false };
+		particle = {
+			.color = Color(0x0000FF),
+			.density = 50,
+			.is_air = false,
+			.has_gravity = true,
+		};
 		break;
 	case Particle::WOOD:
-		color = Color(0x362312);
-		particle = { particle_type, {0, 0}, color, 0, 200, 0.5, false, false, false };
+		particle = {
+			.color = Color(0x362312),
+			.density = 200,
+			.flammability = 0.1,
+			.is_air = false,
+		};
 		break;
 	case Particle::SMOKE:
-		color = Color(0x888888);
-		life_time = 1.0 + dist(mt);
-		particle = { particle_type, {0, 0}, Color_Util::vary_color(color), life_time, 1, 0, true, false, true };
+		particle = {
+			.color = Color_Util::vary_color(Color(0x888888)),
+			.life_time = 0.5f + 1.5f * dist(mt),
+			.density = 1,
+			.simulate_reverse = true,
+		};
 		break;
 	case Particle::FIRE:
-		color = Color(0xFF4500);
-		life_time = 3.0 + 2 * dist(mt);
-		particle = { particle_type, {0, 0}, Color_Util::vary_color(color), life_time, 2, 0, true, false, true };
+		particle = {
+			.color = Color_Util::vary_color(Color(0xFF4500)),
+			.life_time = 3.0f + 2.0f * dist(mt),
+			.density = 2,
+			.simulate_reverse = true,
+		};
 		break;
 	default:
-		particle = { particle_type };
 		break;
 	}
+	particle.type = particle_type;
 	grid[y * width + x] = particle;
 }
 

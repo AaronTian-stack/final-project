@@ -24,5 +24,5 @@ struct Color_Util
 {
     template<typename T>
 	static T generate(T min, T max);
-	static Color vary_color(Color& color);
+	static Color vary_color(const Color& color);
 };
