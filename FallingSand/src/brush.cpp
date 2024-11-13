@@ -10,7 +10,7 @@ Brush::Brush(int brush_size) : brush_size(brush_size)
 {
 }
 
-void Brush::draw_particles(Grid& grid, ParticleType particle_type)
+void Brush::draw_particles(Grid& grid, Particle::Type particle_type)
 {
 	int mouseX, mouseY;
 	// when clicked on grid, set particle
@@ -18,7 +18,7 @@ void Brush::draw_particles(Grid& grid, ParticleType particle_type)
 	auto right_click = SDL_GetMouseState(&mouseX, &mouseY) & SDL_BUTTON(SDL_BUTTON_RIGHT);
 	if (left_click || right_click)
 	{
-		if (right_click) particle_type = EMPTY;
+		if (right_click) particle_type = Particle::EMPTY;
 		// set all pixels within brush size to particle
 		for (int y = mouseY - brush_size; y < mouseY + brush_size; ++y)
 		{
@@ -34,27 +34,7 @@ void Brush::draw_particles(Grid& grid, ParticleType particle_type)
 
 				if (x2 + y2 < brush_size * brush_size && should_draw(local_x, local_y))
 				{
-					switch (particle_type)
-					{
-					case SAND:
-						grid.set(x, y, Sand());
-						break;
-					case WATER:
-						grid.set(x, y, Water());
-						break;
-					case WOOD:
-						grid.set(x, y, Wood());
-						break;
-					case SMOKE:
-						grid.set(x, y, Smoke());
-						break;
-					case FIRE:
-						grid.set(x, y, Fire());
-						break;
-					default:
-						grid.set(x, y, Empty());
-						break;
-					}
+					grid.set(x, y, particle_type);
 				}
 			}
 		}

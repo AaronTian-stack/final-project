@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <random>
 
-#include "particle.h"
+#include "grid.h"
 
 class Simulation
 {
@@ -20,4 +20,8 @@ public:
 
 	// Only particles with gravity can be simulated bottom to top. Would not work with smoke for example
 	void simulate(float delta);
+	void sand(Particle* particle, int x, int y);
+	void water(Particle* particle, int x, int y);
+	void smoke(Particle* particle, int x, int y);
+	void fire(Particle* particle, int x, int y);
 };

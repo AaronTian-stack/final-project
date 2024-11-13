@@ -1,5 +1,4 @@
 ﻿#include "grid.h"
-#include "particle.h"
 
 #include <iostream>
 #include <ostream>
@@ -27,7 +26,7 @@ Particle* Grid::get(int x, int y) const
 	return &grid[y * width + x];
 }
 
-void Grid::set(int x, int y, const Particle& particle)
+void Grid::set(int x, int y, Particle::Type particle_type)
 {
 	if (x >= width || y >= height)
 	{
@@ -35,6 +34,38 @@ void Grid::set(int x, int y, const Particle& particle)
 		std::cerr << "SET Out of range: " << x << ", " << y << std::endl;
 #endif
 		return;
+	}
+	// TODO: abstract this out better
+	Particle particle;
+	Color color;
+	float life_time;
+	switch (particle_type)
+	{
+	case Particle::SAND:
+		color = Color(0xFFD700);
+		particle = { particle_type, {0, 0}, Color_Util::vary_color(color), 0, 100, 0, false, true, false };
+		break;
+	case Particle::WATER:
+		color = Color(0x0000FF);
+		particle = { particle_type, {0, 0}, color, 0, 50, 0, false, true, false };
+		break;
+	case Particle::WOOD:
+		color = Color(0x362312);
+		particle = { particle_type, {0, 0}, color, 0, 200, 0.5, false, false, false };
+		break;
+	case Particle::SMOKE:
+		color = Color(0x888888);
+		life_time = 1.0 + dist(mt);
+		particle = { particle_type, {0, 0}, Color_Util::vary_color(color), life_time, 1, 0, true, false, true };
+		break;
+	case Particle::FIRE:
+		color = Color(0xFF4500);
+		life_time = 3.0 + 2 * dist(mt);
+		particle = { particle_type, {0, 0}, Color_Util::vary_color(color), life_time, 2, 0, true, false, true };
+		break;
+	default:
+		particle = { particle_type };
+		break;
 	}
 	grid[y * width + x] = particle;
 }
@@ -45,8 +76,8 @@ void Grid::swap(int x1, int y1, int x2, int y2)
 	auto xy2 = get(x2, y2);
 	if (!xy1 || !xy2) return;
 	Particle temp = *xy1;
-	set(x1, y1, *xy2);
-	set(x2, y2, temp);
+	grid[y1 * width + x1] = *xy2;
+	grid[y2 * width + x2] = temp;
 }
 
 bool Grid::is_air(int x, int y)
@@ -55,14 +86,14 @@ bool Grid::is_air(int x, int y)
 	return get(x, y)->is_air;
 }
 
-bool Grid::is_denser(const Particle& particle, int x, int y)
+bool Grid::is_denser(Particle* particle, int x, int y)
 {
 	if (!is_valid(x, y)) return false; // assume out of bounds is solid
-	return get(x, y)->density < particle.density;
+	return get(x, y)->density < particle->density;
 }
 
 bool Grid::catches_fire(int x, int y)
 {
 	if (!is_valid(x, y)) return false;
-	return get(x, y)->flammability < dist(mt);
+	return get(x, y)->flammability > dist(mt);
 }

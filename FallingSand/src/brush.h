@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <random>
 
-#include "particle.h"
+#include "grid.h"
 
 // make child class for different brush patterns
 class Brush
@@ -14,7 +14,7 @@ public:
 
 	// brush pattern function
 	virtual bool should_draw(int local_x, int local_y) = 0;
-	void draw_particles(Grid& grid, ParticleType particle_type);
+	void draw_particles(Grid& grid, Particle::Type particle_type);
 	int get_brush_size() const { return brush_size; }
 	void set_brush_size(int size) { brush_size = size; }
 
