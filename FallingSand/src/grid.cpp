@@ -36,54 +36,73 @@ void Grid::set(int x, int y, Particle::Type particle_type)
 		return;
 	}
 
-	Particle particle;
+	Particle p;
+	p.type = particle_type;
+	p.color = ParticleColors::map.at(particle_type);
+
 	switch (particle_type)
 	{
 	case Particle::SAND:
-		particle = {
-			.color = Color_Util::vary_color(Color(0xFFD700)),
-			.density = 100,
-			.is_air = false,
-			.has_gravity = true,
-		};
+		p.matter = Particle::SOLID;
+		p.density = 100;
+		p.corrodibility = 0.01;
+		p.has_gravity = true;
+		p.color = Color_Util::vary_color(p.color);
 		break;
 	case Particle::WATER:
-		particle = {
-			.color = Color(0x0000FF),
-			.density = 50,
-			.is_air = false,
-			.has_gravity = true,
-		};
+		p.matter = Particle::LIQUID;
+		p.density = 50;
+		p.has_gravity = true;
+		break;
+	case Particle::STONE:
+		p.matter = Particle::SOLID;
+		p.density = 500;
 		break;
 	case Particle::WOOD:
-		particle = {
-			.color = Color(0x362312),
-			.density = 200,
-			.flammability = 0.1,
-			.is_air = false,
-		};
+		p.matter = Particle::SOLID;
+		p.density = 200;
+		p.flammability = 0.025;
+		p.corrodibility = 0.05;
 		break;
 	case Particle::SMOKE:
-		particle = {
-			.color = Color_Util::vary_color(Color(0x888888)),
-			.life_time = 0.5f + 1.5f * dist(mt),
-			.density = 1,
-			.simulate_reverse = true,
-		};
+		p.matter = Particle::AIR;
+		p.life_time = 0.1f + 2.0f * dist(mt);
+		p.density = 1;
+		p.simulate_reverse = true;
+		p.dying = true;
+		p.color = Color_Util::vary_color(p.color);
 		break;
 	case Particle::FIRE:
-		particle = {
-			.color = Color_Util::vary_color(Color(0xFF4500)),
-			.life_time = 3.0f + 2.0f * dist(mt),
-			.density = 2,
-			.simulate_reverse = true,
-		};
+		p.matter = Particle::AIR;
+		p.life_time = 0.1f + 0.1f * dist(mt);
+		p.density = 2;
+		p.dissolvability = 0.5;
+		p.simulate_reverse = true;
+		p.burning = true;
+		p.dying = true;
+		p.color = Color_Util::vary_color(p.color);
+		break;
+	case Particle::SALT:
+		p.matter = Particle::SOLID;
+		p.life_time = 0.5f + 1.5f * dist(mt);
+		p.density = 100;
+		p.dissolvability = 0.05;
+		p.corrodibility = 0.15;
+		p.has_gravity = true;
+		p.color = Color_Util::vary_color(p.color);
+		break;
+	case Particle::ACID:
+		p.matter = Particle::LIQUID;
+		p.life_time = 5.0f + 5.0f * dist(mt);
+		p.density = 60;
+		p.dissolvability = 0.005;
+		p.has_gravity = true;
 		break;
 	default:
 		break;
 	}
-	particle.type = particle_type;
-	grid[y * width + x] = particle;
+
+	grid[y * width + x] = p;
 }
 
 void Grid::swap(int x1, int y1, int x2, int y2)
@@ -98,18 +117,30 @@ void Grid::swap(int x1, int y1, int x2, int y2)
 
 bool Grid::is_air(int x, int y)
 {
-	if (!is_valid(x, y)) return false; // assume out of bounds is solid
-	return get(x, y)->is_air;
+	if (!is_valid(x, y)) return false;
+	return get(x, y)->matter == Particle::AIR;
+}
+
+bool Grid::is_liquid(int x, int y)
+{
+	if (!is_valid(x, y)) return false;
+	return get(x, y)->matter == Particle::LIQUID;
+}
+
+bool Grid::is_solid(int x, int y)
+{
+	if (!is_valid(x, y)) return false;
+	return get(x, y)->matter == Particle::SOLID;
+}
+
+bool Grid::is_burning(int x, int y)
+{
+	if (!is_valid(x, y)) return false;
+	return get(x, y)->burning;
 }
 
 bool Grid::is_denser(Particle* particle, int x, int y)
 {
-	if (!is_valid(x, y)) return false; // assume out of bounds is solid
+	if (!is_valid(x, y)) return false; // assume out of bounds infinitely dense
 	return get(x, y)->density < particle->density;
-}
-
-bool Grid::catches_fire(int x, int y)
-{
-	if (!is_valid(x, y)) return false;
-	return get(x, y)->flammability > dist(mt);
 }

@@ -9,26 +9,55 @@
 
 struct Particle
 {
-    enum Type : uint16_t
-    {
-        SAND,
-        WATER,
-        WOOD,
-        SMOKE,
-        FIRE,
-        EMPTY,
-        END,
-    };
-    // TOTAL = 32
-    XMFLOAT2 velocity = { 0, 0 }; // 8
-    Color color = 0x000000; // 4
-    float life_time = 0; // 4
-    float density = 0; // 4
-    float flammability = 0; // 4
-    Type type = EMPTY; // 2
-    uint16_t is_air = true; // 2
-    uint16_t has_gravity = false; // 2
-    uint16_t simulate_reverse = false; // 2
+	enum Type : uint16_t
+	{
+		SAND,
+		WATER,
+		STONE,
+		WOOD,
+		SMOKE,
+		FIRE,
+		SALT,
+		ACID,
+		EMPTY,
+		END,
+	};
+	enum Matter : uint16_t
+	{
+		AIR,
+		LIQUID,
+		SOLID,
+	};
+	// TOTAL = 40
+	XMFLOAT2 velocity = { 0, 0 }; // 8
+	Color color = 0x000000; // 4
+	float life_time = 0; // 4
+	float density = 0; // 4
+	float flammability = 0; // 4
+	float dissolvability = 0; // 4
+	float corrodibility = 0; // 4
+	Type type = EMPTY; // 2
+	Matter matter = AIR; // 2
+	uint8_t has_gravity = false; // 1
+	uint8_t simulate_reverse = false; // 1
+	uint8_t burning = false; // 1
+	uint8_t dying = false; // 1
+};
+
+struct ParticleColors
+{
+	inline static tsl::robin_map<Particle::Type, Color> map =
+	{
+		{ Particle::EMPTY, Color(0x000000) },
+		{ Particle::SAND, Color(0xFFD700) },
+		{ Particle::WATER, Color(0x0000FF) },
+		{ Particle::STONE, Color(0x696969) },
+		{ Particle::WOOD, Color(0x362312) },
+		{ Particle::SMOKE, Color(0x888888) },
+		{ Particle::FIRE, Color(0xFF4500) },
+		{ Particle::SALT, Color(0xDDDDDD) },
+		{ Particle::ACID, Color(0x8FFE09) },
+	};
 };
 
 class Grid
@@ -47,8 +76,11 @@ public:
 	void swap(int x1, int y1, int x2, int y2);
 	unsigned int get_width() const { return width; }
 	unsigned int get_height() const { return height; }
+
+	bool is_valid(int x, int y) const { return x >= 0 && x < (int)width && y >= 0 && y < (int)height; }
 	bool is_air(int x, int y);
+	bool is_liquid(int x, int y);
+	bool is_solid(int x, int y);
+	bool is_burning(int x, int y);
 	bool is_denser(Particle* particle, int x, int y);
-	bool catches_fire(int x, int y);
-	bool is_valid(int x, int y) const { return x >= 0 && x < (int) width && y>= 0 && y < (int) height; }
 };

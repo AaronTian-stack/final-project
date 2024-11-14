@@ -44,9 +44,7 @@ XMINT2 Simulation::raycast(int x, int y, int vx, int vy)
 		}
 
 		if (!grid->is_air(x, y))
-		{
 			return { prev_x, prev_y };
-		}
 
 		prev_x = x;
 		prev_y = y;
@@ -87,6 +85,8 @@ void Simulation::simulate(float delta)
 				}
 
 				particle->life_time -= delta;
+				if (particle->dying && particle->life_time < 0)
+					grid->set(x, y, Particle::EMPTY);
 			}
 
 			switch (particle->type)
@@ -96,6 +96,15 @@ void Simulation::simulate(float delta)
 				break;
 			case Particle::WATER:
 				water(particle, x, y);
+				break;
+			case Particle::WOOD:
+				wood(particle, x, y);
+				break;
+			case Particle::SALT:
+				salt(particle, x, y);
+				break;
+			case Particle::ACID:
+				acid(particle, x, y);
 				break;
 			default:
 				break;
@@ -116,6 +125,8 @@ void Simulation::simulate(float delta)
 			if (particle->simulate_reverse)
 			{
 				particle->life_time -= delta;
+				if (particle->dying && particle->life_time < 0)
+					grid->set(x, y, Particle::EMPTY);
 				
 				switch (particle->type)
 				{
@@ -133,7 +144,7 @@ void Simulation::simulate(float delta)
 	}
 }
 
-void Simulation::sand(Particle* p, int x, int y)
+void Simulation::solid(Particle* p, int x, int y)
 {
 	if (grid->is_denser(p, x, y + 1))
 	{
@@ -153,7 +164,7 @@ void Simulation::sand(Particle* p, int x, int y)
 	}
 }
 
-void Simulation::water(Particle* p, int x, int y)
+void Simulation::liquid(Particle* p, int x, int y)
 {
 	if (grid->is_denser(p, x, y + 1))
 	{
@@ -181,14 +192,8 @@ void Simulation::water(Particle* p, int x, int y)
 	}
 }
 
-void Simulation::smoke(Particle* p, int x, int y)
+void Simulation::air(Particle* p, int x, int y)
 {
-	if (p->life_time < 0)
-	{
-		// TODO: decrease alpha with lifetime
-		grid->set(x, y, Particle::EMPTY);
-		return;
-	}
 	if (grid->is_denser(p, x, y - 1))
 	{
 		grid->swap(x, y, x, y - 1);
@@ -201,19 +206,19 @@ void Simulation::smoke(Particle* p, int x, int y)
 	{
 		grid->swap(x, y, x + 1, y - 1);
 	}
+	else if (grid->is_denser(p, x - 1, y))
+	{
+		grid->swap(x, y, x - 1, y);
+	}
+	else if (grid->is_denser(p, x + 1, y))
+	{
+		grid->swap(x, y, x + 1, y);
+	}
 }
 
-void Simulation::fire(Particle* p, int x, int y)
+bool Simulation::burns(Particle* p, int x, int y)
 {
-	if (!grid->catches_fire(x, y))
-		p->life_time = std::min(p->life_time, 0.2f);
-
-	if (p->life_time < 0)
-	{
-		grid->set(x, y, Particle::SMOKE);
-		return;
-	}
-
+	float burnProbability = 0;
 	int dx[] = { 1, 1, 0, -1, -1, -1,  0,  1 };
 	int dy[] = { 0, 1, 1,  1,  0, -1, -1, -1 };
 
@@ -221,7 +226,102 @@ void Simulation::fire(Particle* p, int x, int y)
 	{
 		int nx = x + dx[i];
 		int ny = y + dy[i];
-		if (p->life_time < 0.2f && grid->catches_fire(nx, ny))
-			grid->set(nx, ny, Particle::FIRE);
+		if (grid->is_burning(nx, ny))
+			burnProbability += 0.5 + dist(mt) * 0.5;
 	}
+
+	return dist(mt) < p->flammability * burnProbability;
+}
+
+bool Simulation::dissolves(Particle* p, int x, int y)
+{
+	float dissolveProbability = 0;
+	int dx[] = { 1, 1, 0, -1, -1, -1,  0,  1 };
+	int dy[] = { 0, 1, 1,  1,  0, -1, -1, -1 };
+
+	for (int i = 0; i < 8; ++i)
+	{
+		int nx = x + dx[i];
+		int ny = y + dy[i];
+		if (grid->is_liquid(nx, ny))
+			dissolveProbability += 0.5 + dist(mt) * 0.5;
+	}
+
+	return dist(mt) < p->dissolvability * dissolveProbability;
+}
+
+void Simulation::sand(Particle* p, int x, int y)
+{
+	solid(p, x, y);
+}
+
+void Simulation::water(Particle* p, int x, int y)
+{
+	liquid(p, x, y);
+}
+
+void Simulation::wood(Particle* p, int x, int y)
+{
+	if (burns(p, x, y))
+	{
+		grid->set(x, y, Particle::FIRE);
+		// TODO: customize burn time based on particle type
+		grid->get(x, y)->life_time = 1.0 + dist(mt);
+	}
+}
+
+void Simulation::smoke(Particle* p, int x, int y)
+{
+	if (p->life_time < 0.2f + dist(mt))
+		p->burning = false;
+	air(p, x, y);
+}
+
+void Simulation::fire(Particle* p, int x, int y)
+{
+	if (dissolves(p, x, y))
+	{
+		// Liquid puts out fire
+		grid->set(x, y, Particle::SMOKE);
+	}
+	else if (p->life_time < 0.1f + 0.1f * dist(mt))
+	{
+		// Become smoke
+		grid->set(x, y, Particle::SMOKE);
+		grid->get(x, y)->burning = true;
+	}
+}
+
+void Simulation::salt(Particle* p, int x, int y)
+{
+	if (dissolves(p, x, y))
+		p->dying = true;
+	solid(p, x, y);
+}
+
+void Simulation::acid(Particle* p, int x, int y)
+{
+	int dx[] = { 0, -1, 1, -1, 1 };
+	int dy[] = { 1, 1, 1, 0, 0 };
+
+	for (int i = 0; i < 5; ++i)
+	{
+		int nx = x + dx[i];
+		int ny = y + dy[i];
+		if (grid->is_solid(nx, ny))
+		{
+			auto np = grid->get(nx, ny);
+			if (np && dist(mt) < np->corrodibility)
+			{
+				grid->set(nx, ny, Particle::EMPTY);
+				break;
+			}
+				
+		}
+	}
+
+	if (dissolves(p, x, y))
+		p->dying = true;
+
+	liquid(p, x, y);
 }

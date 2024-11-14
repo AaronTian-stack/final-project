@@ -70,7 +70,17 @@ int main()
 				quit = true;
 				break;
 			case SDL_KEYDOWN:
-				curr_particle = static_cast<Particle::Type>((curr_particle + 1) % Particle::EMPTY);
+				switch (event.key.keysym.sym)
+				{
+				case SDLK_LEFT:
+					curr_particle = static_cast<Particle::Type>((Particle::EMPTY + curr_particle - 1) % Particle::EMPTY);
+					break;
+				case SDLK_RIGHT:
+					curr_particle = static_cast<Particle::Type>((curr_particle + 1) % Particle::EMPTY);
+					break;
+				default:
+					break;
+				}
 				break;
 			default:
 				break;
@@ -95,7 +105,7 @@ int main()
 
 		// click to draw
 		// TODO: customize brush based on particle via Particle class
-		if (curr_particle == Particle::EMPTY || curr_particle == Particle::WOOD)
+		if (curr_particle == Particle::EMPTY || curr_particle == Particle::STONE || curr_particle == Particle::WOOD)
 			circle_brush.draw_particles(grid, curr_particle);
 		else
 			rand_brush.draw_particles(grid, curr_particle);
@@ -111,13 +121,14 @@ int main()
 		}
 		int mouseX, mouseY;
 		SDL_GetMouseState(&mouseX, &mouseY);
+		Color mouseColor = ParticleColors::map.at(curr_particle);
 		SDL_Util::draw_circle(
 			{
 				.pixelData = pixelData,
 				.width = WIDTH,
 				.height = HEIGHT
 			}, 
-			mouseX, mouseY, rand_brush.get_brush_size(), 0xFFFFFF);
+			mouseX, mouseY, rand_brush.get_brush_size(), mouseColor.hex());
 
 		SDL_UnlockTexture(texture);
 
