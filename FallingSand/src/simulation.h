@@ -2,6 +2,7 @@
 #include <random>
 
 #include "grid.h"
+#include <BS_thread_pool.hpp>
 
 class Simulation
 {
@@ -11,6 +12,7 @@ class Simulation
 	std::uniform_real_distribution<float> dist;
 	Grid* grid;
 	float gravity;
+	BS::thread_pool pool;
 public:
 	Simulation(Grid* grid);
 	void update(float delta);

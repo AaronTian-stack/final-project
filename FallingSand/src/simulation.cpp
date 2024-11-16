@@ -2,7 +2,7 @@
 
 #include <tbb/tbb.h>
 
-Simulation::Simulation(Grid* grid) : mt(rd()), dist(0.0f, 1.0f), grid(grid), gravity(4.0f)
+Simulation::Simulation(Grid* grid) : mt(rd()), dist(0.0f, 1.0f), grid(grid), gravity(8.0f)
 {
 	// TODO: make gravity changeable at runtime
 	assert(grid);
@@ -53,113 +53,150 @@ XMINT2 Simulation::raycast(int x, int y, int vx, int vy)
 
 void Simulation::simulate(float delta)
 {
-	const int num_columns = std::thread::hardware_concurrency() * 2;
+	const int num_columns = std::thread::hardware_concurrency();
 	auto pixels_per_group = grid->get_width() / num_columns;
-	auto step = pixels_per_group * 2;
+	//auto step = pixels_per_group * 2;
 
-	tbb::task_group tg;
+	//tbb::task_group tg;
 
-	auto process_columns = [this, delta, step](int start)
+	//auto process_columns = [this, delta, step](int start, int iterations)
+	//	{
+	//		tbb::parallel_for(tbb::blocked_range(start, start + iterations),
+	//			[this, delta](const tbb::blocked_range<int>& range)
+	//			{
+	auto iterate_bottom_to_top = [this, delta](int start, int iterations)
 		{
-			tbb::parallel_for(tbb::blocked_range<int>(start, grid->get_width(), step),
-				[this, delta](const tbb::blocked_range<int>& range)
+			auto xr = std::min(start + iterations, static_cast<int>(grid->get_width()));
+			for (int y = grid->get_height() - 1; y >= 0; --y)
+			{
+				for (int x = start; x < xr; x++)
 				{
-					for (int y = grid->get_height() - 1; y >= 0; --y)
+					auto particle = grid->get(x, y);
+
+					if (!ParticleUtils::reversed_simulation(particle->type))
 					{
-						for (int x = range.begin(); x < std::max(range.end(), static_cast<int>(grid->get_width())); x++)
+						if (ParticleUtils::affected_by_gravity(particle->type))
 						{
-							auto particle = grid->get(x, y);
+							if (grid->is_denser(particle, x, y + 1))
+								particle->velocity.y += gravity * delta;
 
-							if (!ParticleUtils::reversed_simulation(particle->type))
-							{
-								if (ParticleUtils::affected_by_gravity(particle->type))
-								{
-									if (grid->is_denser(particle, x, y + 1))
-										particle->velocity.y += gravity * delta;
+							//int vx = dist(mt) < 0.5f ? ceil(particle->velocity.x) : floor(particle->velocity.x);
+							//int vy = dist(mt) < 0.5f ? ceil(particle->velocity.y) : floor(particle->velocity.y);
+							int vx = ceil(particle->velocity.x);
+							int vy = ceil(particle->velocity.y);
 
-									//int vx = dist(mt) < 0.5f ? ceil(particle->velocity.x) : floor(particle->velocity.x);
-									//int vy = dist(mt) < 0.5f ? ceil(particle->velocity.y) : floor(particle->velocity.y);
-									int vx = ceil(particle->velocity.x);
-									int vy = ceil(particle->velocity.y);
-
-									auto rc = raycast(x, y, vx, vy);
-									if (x != rc.x || y != rc.y)
-										grid->swap(x, y, rc.x, rc.y);
-								}
-
-								particle->life_time -= delta;
-								if (particle->dying && particle->life_time < 0)
-									grid->set(x, y, Particle::EMPTY);
-							}
-
-							switch (particle->type)
-							{
-							case Particle::SAND:
-								sand(particle, x, y);
-								break;
-							case Particle::WATER:
-								water(particle, x, y);
-								break;
-							case Particle::WOOD:
-								wood(particle, x, y);
-								break;
-							case Particle::SALT:
-								salt(particle, x, y);
-								break;
-							case Particle::ACID:
-								acid(particle, x, y);
-								break;
-							default:
-								break;
-							}
+							auto rc = raycast(x, y, vx, vy);
+							if (x != rc.x || y != rc.y)
+								grid->swap(x, y, rc.x, rc.y);
 						}
-					}
-				});
-		};
 
-	auto process_rising_columns = [this, delta, step](int start)
+						particle->life_time -= delta;
+						if (particle->dying && particle->life_time < 0)
+							grid->set(x, y, Particle::EMPTY);
+					}
+
+					switch (particle->type)
+					{
+					case Particle::SAND:
+						sand(particle, x, y);
+						break;
+					case Particle::WATER:
+						water(particle, x, y);
+						break;
+					case Particle::WOOD:
+						wood(particle, x, y);
+						break;
+					case Particle::SALT:
+						salt(particle, x, y);
+						break;
+					case Particle::ACID:
+						acid(particle, x, y);
+						break;
+					default:
+						break;
+					}
+				}
+			}
+		};
+		//		});
+		//};
+
+	//auto process_rising_columns = [this, delta, step](int start, int iterations)
+	//	{
+	//		tbb::parallel_for(tbb::blocked_range(start, start + iterations),
+	//			[this, delta](const tbb::blocked_range<int>& range)
+	//			{
+					auto iterate_top_to_bottom = [this, delta](int start, int iterations)
+						{
+							auto xr = std::min(start + iterations, static_cast<int>(grid->get_width()));
+							for (int y = 0; y < grid->get_height(); ++y)
+							{
+								for (int x = start; x < xr; x++)
+								{
+									auto particle = grid->get(x, y);
+
+									if (ParticleUtils::reversed_simulation(particle->type))
+									{
+										particle->life_time -= delta;
+										if (particle->dying && particle->life_time < 0)
+											grid->set(x, y, Particle::EMPTY);
+
+										switch (particle->type)
+										{
+										case Particle::SMOKE:
+											smoke(particle, x, y);
+											break;
+										case Particle::FIRE:
+											fire(particle, x, y);
+											break;
+										default:
+											break;
+										}
+									}
+								}
+							}
+						};
+		//		});
+		//};
+
+	//for (int i = 0; i < num_columns; i += 2)
+	//{
+	//	tg.run([=] { process_columns(i * step, step); });
+	//	tg.run([=] { process_rising_columns(i * step, step); });
+	//}
+
+	//tg.wait();
+
+	//for (int i = 1; i < num_columns; i += 2)
+	//{
+	//	tg.run([=] { process_columns(i * step, step); });
+	//	tg.run([=] { process_rising_columns(i * step, step); });
+	//}
+
+	//tg.wait();
+
+	std::vector<std::future<void>> futures;
+	for (int i = 0; i < num_columns; i += 2)
+	{
+		futures.push_back(pool.submit_task([=]
 		{
-			tbb::parallel_for(tbb::blocked_range<int>(start, grid->get_width(), step),
-				[this, delta](const tbb::blocked_range<int>& range)
-				{
-					for (int y = 0; y < grid->get_height(); ++y)
-					{
-						for (int x = range.begin(); x < std::max(range.end(), static_cast<int>(grid->get_width())); x++)
-						{
-							auto particle = grid->get(x, y);
+			iterate_bottom_to_top(i * pixels_per_group, pixels_per_group);
+		}
+		));
+	}
 
-							if (ParticleUtils::reversed_simulation(particle->type))
-							{
-								particle->life_time -= delta;
-								if (particle->dying && particle->life_time < 0)
-									grid->set(x, y, Particle::EMPTY);
+	for (auto& f : futures) f.wait();
 
-								switch (particle->type)
-								{
-								case Particle::SMOKE:
-									smoke(particle, x, y);
-									break;
-								case Particle::FIRE:
-									fire(particle, x, y);
-									break;
-								default:
-									break;
-								}
-							}
-						}
-					}
-				});
-		};
+	for (int i = 1; i < num_columns; i += 2)
+	{
+		futures.push_back(pool.submit_task([=]
+			{
+				iterate_bottom_to_top(i * pixels_per_group, pixels_per_group);
+			}
+		));
+	}
 
-	tg.run([&] { process_columns(0); });
-	tg.run([&] { process_rising_columns(0); });
-
-	tg.wait();
-
-	tg.run([&] { process_columns(1); });
-	tg.run([&] { process_rising_columns(1); });
-
-	tg.wait();
+	for (auto& f : futures) f.wait();
 }
 
 void Simulation::solid(Particle* p, int x, int y)

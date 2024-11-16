@@ -140,7 +140,7 @@ int main()
 		static Uint64 frame_time = SDL_GetTicks64();
 		delta = (frame_time - last_time) / 1000.f;
 #ifdef NDEBUG
-		//std::cout << "Delta time: " << delta << " s" << std::endl;
+		std::cout << "Delta time: " << delta * 1000 << " ms" << std::endl;
 #endif
 
 		//SDL_Delay(16); // wait 16 ms (frame lock)
