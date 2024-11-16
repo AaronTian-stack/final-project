@@ -64,9 +64,9 @@ void Simulation::simulate(float delta)
 			tbb::parallel_for(tbb::blocked_range<int>(start, grid->get_width(), step),
 				[this, delta](const tbb::blocked_range<int>& range)
 				{
-					for (int x = range.begin(); x < range.end(); x++)
+					for (int y = grid->get_height() - 1; y >= 0; --y)
 					{
-						for (int y = grid->get_height() - 1; y >= 0; --y)
+						for (int x = range.begin(); x < std::max(range.end(), static_cast<int>(grid->get_width())); x++)
 						{
 							auto particle = grid->get(x, y);
 
@@ -77,8 +77,10 @@ void Simulation::simulate(float delta)
 									if (grid->is_denser(particle, x, y + 1))
 										particle->velocity.y += gravity * delta;
 
-									int vx = dist(mt) < 0.5f ? ceil(particle->velocity.x) : floor(particle->velocity.x);
-									int vy = dist(mt) < 0.5f ? ceil(particle->velocity.y) : floor(particle->velocity.y);
+									//int vx = dist(mt) < 0.5f ? ceil(particle->velocity.x) : floor(particle->velocity.x);
+									//int vy = dist(mt) < 0.5f ? ceil(particle->velocity.y) : floor(particle->velocity.y);
+									int vx = ceil(particle->velocity.x);
+									int vy = ceil(particle->velocity.y);
 
 									auto rc = raycast(x, y, vx, vy);
 									if (x != rc.x || y != rc.y)
@@ -120,9 +122,9 @@ void Simulation::simulate(float delta)
 			tbb::parallel_for(tbb::blocked_range<int>(start, grid->get_width(), step),
 				[this, delta](const tbb::blocked_range<int>& range)
 				{
-					for (int x = range.begin(); x < range.end(); x++)
+					for (int y = 0; y < grid->get_height(); ++y)
 					{
-						for (int y = 0; y < grid->get_height(); ++y)
+						for (int x = range.begin(); x < std::max(range.end(), static_cast<int>(grid->get_width())); x++)
 						{
 							auto particle = grid->get(x, y);
 
