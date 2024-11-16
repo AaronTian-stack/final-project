@@ -33,12 +33,11 @@
     <ClCompile Include="src\color.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\particle.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="SDL2-2.30.7\lib\x64\SDL2.dll" />
+    <CopyFileToFolders Include="oneapi-tbb-2022.0.0\redist\intel64\vc14\tbb12.dll" />
+    <CopyFileToFolders Include="oneapi-tbb-2022.0.0\redist\intel64\vc14\tbb12_debug.dll" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\grid.h">
@@ -56,8 +55,29 @@
     <ClInclude Include="src\color.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\particle.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="oneapi-tbb-2022.0.0\.bazelversion" />
+    <None Include="oneapi-tbb-2022.0.0\.gitattributes" />
+    <None Include="oneapi-tbb-2022.0.0\.gitignore" />
+    <None Include="oneapi-tbb-2022.0.0\Bazel.md" />
+    <None Include="oneapi-tbb-2022.0.0\BUILD.bazel" />
+    <None Include="oneapi-tbb-2022.0.0\CODE_OF_CONDUCT.md" />
+    <None Include="oneapi-tbb-2022.0.0\CODEOWNERS" />
+    <None Include="oneapi-tbb-2022.0.0\CONTRIBUTING.md" />
+    <None Include="oneapi-tbb-2022.0.0\INSTALL.md" />
+    <None Include="oneapi-tbb-2022.0.0\MODULE.bazel" />
+    <None Include="oneapi-tbb-2022.0.0\MODULE.bazel.lock" />
+    <None Include="oneapi-tbb-2022.0.0\README.md" />
+    <None Include="oneapi-tbb-2022.0.0\RELEASE_NOTES.md" />
+    <None Include="oneapi-tbb-2022.0.0\SECURITY.md" />
+    <None Include="oneapi-tbb-2022.0.0\SUPPORT.md" />
+    <None Include="oneapi-tbb-2022.0.0\SYSTEM_REQUIREMENTS.md" />
+    <None Include="oneapi-tbb-2022.0.0\WASM_Support.md" />
+    <None Include="oneapi-tbb-2022.0.0\WORKSPACE.bazel" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="oneapi-tbb-2022.0.0\LICENSE.txt" />
+    <Text Include="oneapi-tbb-2022.0.0\third-party-programs.txt" />
   </ItemGroup>
 </Project>
