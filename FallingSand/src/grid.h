@@ -69,7 +69,6 @@ struct ParticleUtils
 		return type & (Particle::SAND | Particle::WATER | Particle::SALT | Particle::ACID);
 	}
 
-	// whether the particle should be simulated from bottom to top
 	static bool reversed_simulation(Particle::Type type)
 	{
 		return type & (Particle::SMOKE | Particle::FIRE);
