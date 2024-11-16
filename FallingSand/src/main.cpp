@@ -12,8 +12,8 @@ int main()
 {
 	// TODO: use SDL to draw UI, debugging grids/lines...
 	// Slows down at 1920x1000 (8 ms simulation)
-	const int WIDTH = 800;
-	const int HEIGHT = 600;
+	const int WIDTH = 1920;
+	const int HEIGHT = 1000;
 
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) != 0)
 	{
@@ -91,7 +91,7 @@ int main()
 		simulation.update(delta);
 		static Uint64 current_time = SDL_GetTicks64();
 #ifdef NDEBUG
-		//std::cout << "Simulation time: " << current_time - last_time << " ms" << std::endl;
+		std::cout << "Simulation time: " << current_time - last_time << " ms" << std::endl;
 #endif
 
 		// RENDER
