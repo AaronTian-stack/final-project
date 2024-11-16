@@ -53,13 +53,13 @@ int main()
 
 	Grid grid(WIDTH, HEIGHT);
 	CircleBrush circle_brush(brush_width);
-	RandomBrush rand_brush(brush_width, 0.1f);
+	RandomBrush rand_brush(brush_width, 0.02f);
 	Simulation simulation(&grid);
 
 	Particle::Type curr_particle = Particle::SAND;
 
 	bool quit = false;
-	float delta = 0.f;
+	double delta = 0.f;
 	while (!quit)
 	{
 		SDL_Event event;
@@ -72,11 +72,11 @@ int main()
 			case SDL_KEYDOWN:
 				switch (event.key.keysym.sym)
 				{
-				case SDLK_LEFT:
-					curr_particle = static_cast<Particle::Type>((Particle::EMPTY + curr_particle - 1) % Particle::EMPTY);
+			case SDLK_LEFT:
+				curr_particle = static_cast<Particle::Type>(std::max(curr_particle / 2, static_cast<int>(Particle::SAND)));
 					break;
-				case SDLK_RIGHT:
-					curr_particle = static_cast<Particle::Type>((curr_particle + 1) % Particle::EMPTY);
+			case SDLK_RIGHT:
+					curr_particle = static_cast<Particle::Type>(std::max(curr_particle * 2 % Particle::EMPTY, static_cast<int>(Particle::SAND)));
 					break;
 				default:
 					break;
@@ -87,11 +87,11 @@ int main()
 			}
 		}
 		// start timer
-		static Uint32 last_time = SDL_GetTicks64();
+		static Uint64 last_time = SDL_GetTicks64();
 		simulation.update(delta);
-		static Uint32 current_time = SDL_GetTicks64();
+		static Uint64 current_time = SDL_GetTicks64();
 #ifdef NDEBUG
-		std::cout << "Simulation time: " << current_time - last_time << " ms" << std::endl;
+		//std::cout << "Simulation time: " << current_time - last_time << " ms" << std::endl;
 #endif
 
 		// RENDER
@@ -104,8 +104,8 @@ int main()
 		}
 
 		// click to draw
-		// TODO: customize brush based on particle via Particle class
-		if (curr_particle == Particle::EMPTY || curr_particle == Particle::STONE || curr_particle == Particle::WOOD)
+		// TODO: customize brush
+		if (ParticleUtils::use_solid_brush(curr_particle))
 			circle_brush.draw_particles(grid, curr_particle);
 		else
 			rand_brush.draw_particles(grid, curr_particle);
@@ -121,7 +121,7 @@ int main()
 		}
 		int mouseX, mouseY;
 		SDL_GetMouseState(&mouseX, &mouseY);
-		Color mouseColor = ParticleColors::map.at(curr_particle);
+		Color mouseColor = ParticleUtils::colors.at(curr_particle);
 		SDL_Util::draw_circle(
 			{
 				.pixelData = pixelData,
@@ -137,10 +137,10 @@ int main()
 		SDL_RenderCopy(renderer, texture, nullptr, nullptr);
 		SDL_RenderPresent(renderer);
 
-		static Uint32 frame_time = SDL_GetTicks64();
+		static Uint64 frame_time = SDL_GetTicks64();
 		delta = (frame_time - last_time) / 1000.f;
 #ifdef NDEBUG
-		std::cout << "Delta time: " << delta << " s" << std::endl;
+		//std::cout << "Delta time: " << delta << " s" << std::endl;
 #endif
 
 		//SDL_Delay(16); // wait 16 ms (frame lock)

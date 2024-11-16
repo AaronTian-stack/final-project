@@ -38,65 +38,52 @@ void Grid::set(int x, int y, Particle::Type particle_type)
 
 	Particle p;
 	p.type = particle_type;
-	p.color = ParticleColors::map.at(particle_type);
+	p.color = ParticleUtils::colors.at(particle_type);
 
 	switch (particle_type)
 	{
 	case Particle::SAND:
-		p.matter = Particle::SOLID;
 		p.density = 100;
 		p.corrodibility = 0.01;
-		p.has_gravity = true;
 		p.color = Color_Util::vary_color(p.color);
 		break;
 	case Particle::WATER:
-		p.matter = Particle::LIQUID;
 		p.density = 50;
-		p.has_gravity = true;
 		break;
 	case Particle::STONE:
-		p.matter = Particle::SOLID;
 		p.density = 500;
 		break;
 	case Particle::WOOD:
-		p.matter = Particle::SOLID;
 		p.density = 200;
 		p.flammability = 0.025;
 		p.corrodibility = 0.05;
+		p.color = Color_Util::vary_color(p.color);
 		break;
 	case Particle::SMOKE:
-		p.matter = Particle::AIR;
 		p.life_time = 0.1f + 2.0f * dist(mt);
 		p.density = 1;
-		p.simulate_reverse = true;
 		p.dying = true;
 		p.color = Color_Util::vary_color(p.color);
 		break;
 	case Particle::FIRE:
-		p.matter = Particle::AIR;
 		p.life_time = 0.1f + 0.1f * dist(mt);
 		p.density = 2;
 		p.dissolvability = 0.5;
-		p.simulate_reverse = true;
 		p.burning = true;
 		p.dying = true;
 		p.color = Color_Util::vary_color(p.color);
 		break;
 	case Particle::SALT:
-		p.matter = Particle::SOLID;
 		p.life_time = 0.5f + 1.5f * dist(mt);
 		p.density = 100;
 		p.dissolvability = 0.05;
 		p.corrodibility = 0.15;
-		p.has_gravity = true;
 		p.color = Color_Util::vary_color(p.color);
 		break;
 	case Particle::ACID:
-		p.matter = Particle::LIQUID;
 		p.life_time = 5.0f + 5.0f * dist(mt);
 		p.density = 60;
 		p.dissolvability = 0.005;
-		p.has_gravity = true;
 		break;
 	default:
 		break;
@@ -118,19 +105,19 @@ void Grid::swap(int x1, int y1, int x2, int y2)
 bool Grid::is_air(int x, int y)
 {
 	if (!is_valid(x, y)) return false;
-	return get(x, y)->matter == Particle::AIR;
+	return ParticleUtils::is_air(get(x, y)->type);
 }
 
 bool Grid::is_liquid(int x, int y)
 {
 	if (!is_valid(x, y)) return false;
-	return get(x, y)->matter == Particle::LIQUID;
+	return ParticleUtils::is_liquid(get(x, y)->type);
 }
 
 bool Grid::is_solid(int x, int y)
 {
 	if (!is_valid(x, y)) return false;
-	return get(x, y)->matter == Particle::SOLID;
+	return ParticleUtils::is_solid(get(x, y)->type);
 }
 
 bool Grid::is_burning(int x, int y)

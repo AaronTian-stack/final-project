@@ -63,9 +63,9 @@ void Simulation::simulate(float delta)
 			auto x = rand < 0.5f ? xr : grid->get_width() - 1 - xr;
 			auto particle = grid->get(x, y);
 
-			if (!particle->simulate_reverse)
+			if (!ParticleUtils::reversed_simulation(particle->type))
 			{
-				if (particle->has_gravity)
+				if (ParticleUtils::affected_by_gravity(particle->type))
 				{
 					// TODO: use bitmask to determine whether to apply gravity
 					if (grid->is_denser(particle, x, y + 1))
@@ -74,10 +74,9 @@ void Simulation::simulate(float delta)
 					// try to move to next position with velocity
 
 					// TODO: replace with thread safe random!!!
-					auto vx = dist(mt) < 0.5f ? ceil(particle->velocity.x) : floor(particle->velocity.x);
-					auto vy = dist(mt) < 0.5f ? ceil(particle->velocity.y) : floor(particle->velocity.y);
+					int vx = dist(mt) < 0.5f ? ceil(particle->velocity.x) : floor(particle->velocity.x);
+					int vy = dist(mt) < 0.5f ? ceil(particle->velocity.y) : floor(particle->velocity.y);
 
-					// std::cout << vx << ", " << vy << std::endl;
 					auto rc = raycast(x, y, vx, vy);
 					// move the particle to raycasted empty position
 					if (x != rc.x || y != rc.y)
@@ -122,7 +121,7 @@ void Simulation::simulate(float delta)
 			auto x = rand < 0.5f ? xr : grid->get_width() - 1 - xr;
 			auto particle = grid->get(x, y);
 
-			if (particle->simulate_reverse)
+			if (ParticleUtils::reversed_simulation(particle->type))
 			{
 				particle->life_time -= delta;
 				if (particle->dying && particle->life_time < 0)

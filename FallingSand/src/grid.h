@@ -11,24 +11,17 @@ struct Particle
 {
 	enum Type : uint16_t
 	{
-		SAND,
-		WATER,
-		STONE,
-		WOOD,
-		SMOKE,
-		FIRE,
-		SALT,
-		ACID,
-		EMPTY,
-		END,
+		SAND = 1 << 0,
+		WATER = 1 << 1,
+		STONE = 1 << 2,
+		WOOD = 1 << 3,
+		SMOKE = 1 << 4,
+		FIRE = 1 << 5,
+		SALT = 1 << 6,
+		ACID = 1 << 7,
+		EMPTY = 1 << 8,
 	};
-	enum Matter : uint16_t
-	{
-		AIR,
-		LIQUID,
-		SOLID,
-	};
-	// TOTAL = 40
+	// TOTAL = 36 bytes
 	XMFLOAT2 velocity = { 0, 0 }; // 8
 	Color color = 0x000000; // 4
 	float life_time = 0; // 4
@@ -37,16 +30,13 @@ struct Particle
 	float dissolvability = 0; // 4
 	float corrodibility = 0; // 4
 	Type type = EMPTY; // 2
-	Matter matter = AIR; // 2
-	uint8_t has_gravity = false; // 1
-	uint8_t simulate_reverse = false; // 1
-	uint8_t burning = false; // 1
-	uint8_t dying = false; // 1
+	uint8_t dying = 0; // 1
+	uint8_t burning = 0; // 1
 };
 
-struct ParticleColors
+struct ParticleUtils
 {
-	inline static tsl::robin_map<Particle::Type, Color> map =
+	inline static tsl::robin_map<Particle::Type, Color> colors =
 	{
 		{ Particle::EMPTY, Color(0x000000) },
 		{ Particle::SAND, Color(0xFFD700) },
@@ -58,6 +48,37 @@ struct ParticleColors
 		{ Particle::SALT, Color(0xDDDDDD) },
 		{ Particle::ACID, Color(0x8FFE09) },
 	};
+
+	static bool is_solid(Particle::Type type)
+	{
+		return type & (Particle::SAND | Particle::STONE | Particle::WOOD | Particle::SALT);
+	}
+
+	static bool is_liquid(Particle::Type type)
+	{
+		return type & Particle::WATER;
+	}
+
+	static bool is_air(Particle::Type type)
+	{
+		return type & (Particle::SMOKE | Particle::EMPTY);
+	}
+
+	static bool affected_by_gravity(Particle::Type type)
+	{
+		return type & (Particle::SAND | Particle::WATER | Particle::SALT | Particle::ACID);
+	}
+
+	// whether the particle should be simulated from bottom to top
+	static bool reversed_simulation(Particle::Type type)
+	{
+		return type & (Particle::SMOKE | Particle::FIRE);
+	}
+
+	static bool use_solid_brush(Particle::Type type)
+	{
+		return type & (Particle::EMPTY | Particle::STONE | Particle::WOOD);
+	}
 };
 
 class Grid
