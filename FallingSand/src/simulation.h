@@ -15,13 +15,12 @@ class Simulation
 	BS::thread_pool pool;
 public:
 	Simulation(Grid* grid);
-	void update(float delta);
 
 	// returns closest position of particle in velocity (vx, vy) from (x, y)
 	XMINT2 raycast(int x, int y, int vx, int vy);
 
 	// Only particles with gravity can be simulated bottom to top. Would not work with smoke for example
-	void simulate(float delta);
+	std::vector<int> update(float delta);
 	void solid(Particle* particle, int x, int y);
 	void liquid(Particle* particle, int x, int y);
 	void air(Particle* particle, int x, int y);

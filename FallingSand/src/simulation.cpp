@@ -9,11 +9,6 @@ Simulation::Simulation(Grid* grid) : mt(rd()), dist(0.0f, 1.0f), grid(grid), gra
 	assert(grid);
 }
 
-void Simulation::update(float delta)
-{
-	simulate(delta);
-}
-
 XMINT2 Simulation::raycast(int x, int y, int vx, int vy)
 {
 	// don't really care about a precise position of particles so just use bresenham
@@ -52,7 +47,7 @@ XMINT2 Simulation::raycast(int x, int y, int vx, int vy)
 	}
 }
 
-void Simulation::simulate(float delta)
+std::vector<int> Simulation::update(float delta)
 {
 	// pick directions for each row
 	std::vector<bool> directions(grid->get_height());
@@ -186,13 +181,17 @@ void Simulation::simulate(float delta)
 	//}
 
 	//tg.wait();
+
+	std::vector<int> debug(num_columns);
+
 	assert(num_columns % 2 == 0);
-	int random_offset = dist(mt) * pixels_per_group;
+	int random_offset = dist(mt) * pixels_per_group * 0.5;
 
 	for (int i = 0; i < num_columns; i += 2)
 	{
 		int start = i * pixels_per_group + random_offset * (i == 0);
 		int end = (i + 1) * pixels_per_group + random_offset;
+		debug[i] = end;
 		pool.detach_task([=]
 		{
 			thread_local std::mt19937 mt(std::random_device{}());
@@ -202,13 +201,13 @@ void Simulation::simulate(float delta)
 		}
 		);
 	}
-
 	pool.wait();
 
 	for (int i = 1; i < num_columns; i += 2)
 	{
 		int start = i * pixels_per_group + random_offset;
 		int end = (i + 1) * pixels_per_group + random_offset;
+		debug[i] = end;
 		pool.detach_task([=]
 		{
 			thread_local std::mt19937 mt(std::random_device{}());
@@ -218,8 +217,9 @@ void Simulation::simulate(float delta)
 		}
 		);
 	}
-
 	pool.wait();
+
+	return debug;
 }
 
 void Simulation::solid(Particle* p, int x, int y)

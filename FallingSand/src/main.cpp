@@ -8,14 +8,16 @@
 #include "sdl_util.h"
 #include "simulation.h"
 
+//#define DEBUGGING
+
 int main()
 {
 	// TODO: use SDL to draw UI, debugging grids/lines...
 	// Slows down at 1920x1000 (8 ms simulation)
-	const int WIDTH = 800;
-	const int HEIGHT = 600;
+	const int WIDTH = 1280;
+	const int HEIGHT = 720;
 
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) != 0)
+	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 	{
 		SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
 		throw std::runtime_error("Unable to initialize SDL");
@@ -88,11 +90,18 @@ int main()
 		}
 		// start timer
 		static Uint64 last_time = SDL_GetTicks64();
-		simulation.update(delta);
+		auto debug = simulation.update(delta);
 		static Uint64 current_time = SDL_GetTicks64();
-#ifdef NDEBUG
-		//std::cout << "Simulation time: " << current_time - last_time << " ms" << std::endl;
+#if(defined NDEBUG && defined DEBUGGING)
+		std::cout << "Simulation time: " << current_time - last_time << " ms" << std::endl;
 #endif
+
+		// click to draw
+		// TODO: customize brush
+		if (ParticleUtils::use_solid_brush(curr_particle))
+			circle_brush.draw_particles(grid, curr_particle);
+		else
+			rand_brush.draw_particles(grid, curr_particle);
 
 		// RENDER
 		void* pixels;
@@ -102,13 +111,6 @@ int main()
 			SDL_Log("Unable to lock texture: %s", SDL_GetError());
 			break;
 		}
-
-		// click to draw
-		// TODO: customize brush
-		if (ParticleUtils::use_solid_brush(curr_particle))
-			circle_brush.draw_particles(grid, curr_particle);
-		else
-			rand_brush.draw_particles(grid, curr_particle);
 
 		uint32_t* pixel_data = static_cast<uint32_t*>(pixels);
 		for (int y = 0; y < HEIGHT; ++y)
@@ -135,12 +137,21 @@ int main()
 		// present
 		SDL_RenderClear(renderer);
 		SDL_RenderCopy(renderer, texture, nullptr, nullptr);
+
+#ifdef DEBUGGING
+		for (int i = 0; i < debug.size(); ++i)
+		{
+			SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+			SDL_RenderDrawLine(renderer, debug[i], 0, debug[i], HEIGHT);
+		}
+#endif
+
 		SDL_RenderPresent(renderer);
 
 		static Uint64 frame_time = SDL_GetTicks64();
 		delta = (frame_time - last_time) / 1000.f;
-#ifdef NDEBUG
-		//std::cout << "Delta time: " << delta * 1000 << " ms" << std::endl;
+#if(defined NDEBUG && defined DEBUGGING)
+		std::cout << "Delta time: " << delta * 1000 << " ms" << std::endl;
 #endif
 
 		//SDL_Delay(16); // wait 16 ms (frame lock)
