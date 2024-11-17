@@ -35,4 +35,5 @@ public:
 	void fire(Particle* particle, int x, int y);
 	void salt(Particle* particle, int x, int y);
 	void acid(Particle* particle, int x, int y);
+	void gasoline(Particle* p, int x, int y);
 };

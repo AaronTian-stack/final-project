@@ -19,7 +19,8 @@ struct Particle
 		FIRE = 1 << 5,
 		SALT = 1 << 6,
 		ACID = 1 << 7,
-		EMPTY = 1 << 8,
+		GASOLINE = 1 << 8,
+		EMPTY = 1 << 9,
 	};
 	// TOTAL = 36 bytes
 	XMFLOAT2 velocity = { 0, 0 }; // 8
@@ -48,6 +49,7 @@ struct ParticleUtils
 		{ Particle::FIRE, Color(0xFF4500) },
 		{ Particle::SALT, Color(0xDDDDDD) },
 		{ Particle::ACID, Color(0x8FFE09) },
+		{ Particle::GASOLINE, Color(0xFFA500) },
 	};
 
 	static bool is_solid(Particle::Type type)
@@ -57,7 +59,7 @@ struct ParticleUtils
 
 	static bool is_liquid(Particle::Type type)
 	{
-		return type & Particle::WATER;
+		return type & Particle::WATER & Particle::ACID & Particle::GASOLINE;
 	}
 
 	static bool is_air(Particle::Type type)
@@ -67,7 +69,7 @@ struct ParticleUtils
 
 	static bool affected_by_gravity(Particle::Type type)
 	{
-		return type & (Particle::SAND | Particle::WATER | Particle::SALT | Particle::ACID);
+		return type & (Particle::SAND | Particle::WATER | Particle::SALT | Particle::ACID | Particle::GASOLINE);
 	}
 
 	static bool reversed_simulation(Particle::Type type)

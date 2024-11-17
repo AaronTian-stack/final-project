@@ -10,7 +10,7 @@ Brush::Brush(int brush_size) : brush_size(brush_size)
 {
 }
 
-void Brush::draw_particles(Grid& grid, Particle::Type particle_type)
+void Brush::draw_particles(Grid& grid, Particle::Type particle_type, XMFLOAT2 velocity)
 {
 	int mouseX, mouseY;
 	// when clicked on grid, set particle
@@ -35,6 +35,7 @@ void Brush::draw_particles(Grid& grid, Particle::Type particle_type)
 				if (x2 + y2 < brush_size * brush_size && should_draw(local_x, local_y))
 				{
 					grid.set(x, y, particle_type);
+					//grid.get(x, y)->velocity = velocity;
 				}
 			}
 		}

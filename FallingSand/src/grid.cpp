@@ -28,7 +28,7 @@ Particle* Grid::get(int x, int y) const
 
 void Grid::set(int x, int y, Particle::Type particle_type)
 {
-	if (x >= width || y >= height)
+	if (x < 0 || x >= width || y < 0 || y >= height)
 	{
 #ifdef DEBUG
 		std::cerr << "SET Out of range: " << x << ", " << y << std::endl;
@@ -60,13 +60,13 @@ void Grid::set(int x, int y, Particle::Type particle_type)
 		p.color = Color_Util::vary_color(p.color);
 		break;
 	case Particle::SMOKE:
-		p.life_time = 0.1f + 2.0f * dist(mt);
+		p.life_time = 0.05f + 2.0f * dist(mt);
 		p.density = 1;
 		p.dying = true;
 		p.color = Color_Util::vary_color(p.color);
 		break;
 	case Particle::FIRE:
-		p.life_time = 0.1f + 0.1f * dist(mt);
+		p.life_time = 0.2f + 0.1f * dist(mt);
 		p.density = 2;
 		p.dissolvability = 0.5;
 		p.burning = true;
@@ -84,6 +84,10 @@ void Grid::set(int x, int y, Particle::Type particle_type)
 		p.life_time = 5.0f + 5.0f * dist(mt);
 		p.density = 60;
 		p.dissolvability = 0.005;
+		break;
+	case Particle::GASOLINE:
+		p.density = 25;
+		p.flammability = 0.04;
 		break;
 	default:
 		break;

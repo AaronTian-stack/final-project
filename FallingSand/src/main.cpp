@@ -62,6 +62,7 @@ int main()
 
 	bool quit = false;
 	double delta = 0.f;
+	int prev_mouseX = 0, prev_mouseY = 0;
 	while (!quit)
 	{
 		SDL_Event event;
@@ -89,19 +90,26 @@ int main()
 			}
 		}
 		// start timer
+		//std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 		static Uint64 last_time = SDL_GetTicks64();
 		auto debug = simulation.update(delta);
 		static Uint64 current_time = SDL_GetTicks64();
+		//std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+		//auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
 #if(defined NDEBUG && defined DEBUGGING)
-		std::cout << "Simulation time: " << current_time - last_time << " ms" << std::endl;
+		std::cout << "Simulation time: " << current_time - last_time << " ms\n";
+		std::cout << "Simulation time CHRONO: " << elapsed << " ms" << std::endl;
 #endif
-
+		int mouseX, mouseY;
+		SDL_GetMouseState(&mouseX, &mouseY);
+		//auto velocity = XMFLOAT2{ static_cast<float>(mouseX - prev_mouseX) * 0.1f, static_cast<float>(mouseY - prev_mouseY) * 0.1f };
+		
 		// click to draw
 		// TODO: customize brush
 		if (ParticleUtils::use_solid_brush(curr_particle))
 			circle_brush.draw_particles(grid, curr_particle);
 		else
-			rand_brush.draw_particles(grid, curr_particle);
+			rand_brush.draw_particles(grid, curr_particle); // can set default velocity
 
 		// RENDER
 		void* pixels;
@@ -121,8 +129,7 @@ int main()
 				pixel_data[y * (pitch / 4) + x] = particle->color.hex();
 			}
 		}
-		int mouseX, mouseY;
-		SDL_GetMouseState(&mouseX, &mouseY);
+
 		Color mouseColor = ParticleUtils::colors.at(curr_particle);
 		SDL_Util::draw_circle(
 			{
@@ -155,6 +162,9 @@ int main()
 #endif
 
 		//SDL_Delay(16); // wait 16 ms (frame lock)
+
+		prev_mouseX = mouseX;
+		prev_mouseY = mouseY;
 	}
 
 	SDL_DestroyTexture(texture);

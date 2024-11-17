@@ -117,6 +117,8 @@ std::vector<int> Simulation::update(float delta)
 					case Particle::ACID:
 						acid(particle, x, y);
 						break;
+					case Particle::GASOLINE:
+						gasoline(particle, x, y);
 					default:
 						break;
 					}
@@ -218,6 +220,9 @@ std::vector<int> Simulation::update(float delta)
 		);
 	}
 	pool.wait();
+
+	//iterate_bottom_to_top(0, grid->get_width());
+	//iterate_top_to_bottom(0, grid->get_width());
 
 	return debug;
 }
@@ -400,5 +405,16 @@ void Simulation::acid(Particle* p, int x, int y)
 	if (dissolves(p, x, y))
 		p->dying = true;
 
+	liquid(p, x, y);
+}
+
+void Simulation::gasoline(Particle* p, int x, int y)
+{
+	if (burns(p, x, y))
+	{
+		grid->set(x, y, Particle::FIRE);
+		// TODO: customize burn time based on particle type
+		grid->get(x, y)->life_time = 1.0 + dist(mt);
+	}
 	liquid(p, x, y);
 }
