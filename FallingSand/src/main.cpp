@@ -12,8 +12,8 @@ int main()
 {
 	// TODO: use SDL to draw UI, debugging grids/lines...
 	// Slows down at 1920x1000 (8 ms simulation)
-	const int WIDTH = 1920;
-	const int HEIGHT = 1000;
+	const int WIDTH = 800;
+	const int HEIGHT = 600;
 
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) != 0)
 	{
@@ -91,7 +91,7 @@ int main()
 		simulation.update(delta);
 		static Uint64 current_time = SDL_GetTicks64();
 #ifdef NDEBUG
-		std::cout << "Simulation time: " << current_time - last_time << " ms" << std::endl;
+		//std::cout << "Simulation time: " << current_time - last_time << " ms" << std::endl;
 #endif
 
 		// RENDER
@@ -110,13 +110,13 @@ int main()
 		else
 			rand_brush.draw_particles(grid, curr_particle);
 
-		uint32_t* pixelData = static_cast<uint32_t*>(pixels);
+		uint32_t* pixel_data = static_cast<uint32_t*>(pixels);
 		for (int y = 0; y < HEIGHT; ++y)
 		{
 			for (int x = 0; x < WIDTH; ++x)
 			{
 				auto particle = grid.get(x, y);
-				pixelData[y * (pitch / 4) + x] = particle->color.hex();
+				pixel_data[y * (pitch / 4) + x] = particle->color.hex();
 			}
 		}
 		int mouseX, mouseY;
@@ -124,7 +124,7 @@ int main()
 		Color mouseColor = ParticleUtils::colors.at(curr_particle);
 		SDL_Util::draw_circle(
 			{
-				.pixelData = pixelData,
+				.pixelData = pixel_data,
 				.width = WIDTH,
 				.height = HEIGHT
 			}, 
@@ -140,7 +140,7 @@ int main()
 		static Uint64 frame_time = SDL_GetTicks64();
 		delta = (frame_time - last_time) / 1000.f;
 #ifdef NDEBUG
-		std::cout << "Delta time: " << delta * 1000 << " ms" << std::endl;
+		//std::cout << "Delta time: " << delta * 1000 << " ms" << std::endl;
 #endif
 
 		//SDL_Delay(16); // wait 16 ms (frame lock)

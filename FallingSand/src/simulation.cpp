@@ -1,8 +1,9 @@
 ﻿#include "simulation.h"
 
+#include <iostream>
 #include <tbb/tbb.h>
 
-Simulation::Simulation(Grid* grid) : mt(rd()), dist(0.0f, 1.0f), grid(grid), gravity(8.0f)
+Simulation::Simulation(Grid* grid) : mt(rd()), dist(0.0f, 1.0f), grid(grid), gravity(4.0f)
 {
 	// TODO: make gravity changeable at runtime
 	assert(grid);
@@ -54,7 +55,7 @@ XMINT2 Simulation::raycast(int x, int y, int vx, int vy)
 void Simulation::simulate(float delta)
 {
 	const int num_columns = std::thread::hardware_concurrency();
-	auto pixels_per_group = grid->get_width() / num_columns;
+	int pixels_per_group = ceil(grid->get_width() / num_columns);
 	//auto step = pixels_per_group * 2;
 
 	//tbb::task_group tg;
@@ -64,9 +65,10 @@ void Simulation::simulate(float delta)
 	//		tbb::parallel_for(tbb::blocked_range(start, start + iterations),
 	//			[this, delta](const tbb::blocked_range<int>& range)
 	//			{
-	auto iterate_bottom_to_top = [this, delta](int start, int iterations)
+	auto iterate_bottom_to_top = [this, delta](int start, int end)
 		{
-			auto xr = std::min(start + iterations, static_cast<int>(grid->get_width()));
+			if (start >= static_cast<int>(grid->get_width())) return;
+			auto xr = std::min(end, static_cast<int>(grid->get_width()));
 			for (int y = grid->get_height() - 1; y >= 0; --y)
 			{
 				for (int x = start; x < xr; x++)
@@ -126,9 +128,10 @@ void Simulation::simulate(float delta)
 	//		tbb::parallel_for(tbb::blocked_range(start, start + iterations),
 	//			[this, delta](const tbb::blocked_range<int>& range)
 	//			{
-					auto iterate_top_to_bottom = [this, delta](int start, int iterations)
+					auto iterate_top_to_bottom = [this, delta](int start, int end)
 						{
-							auto xr = std::min(start + iterations, static_cast<int>(grid->get_width()));
+							if (start >= static_cast<int>(grid->get_width())) return;
+							auto xr = std::min(end, static_cast<int>(grid->get_width()));
 							for (int y = 0; y < grid->get_height(); ++y)
 							{
 								for (int x = start; x < xr; x++)
@@ -174,29 +177,36 @@ void Simulation::simulate(float delta)
 	//}
 
 	//tg.wait();
-
-	std::vector<std::future<void>> futures;
+	assert(num_columns % 2 == 0);
+	int random_offset = dist(mt) * pixels_per_group;
+	//int random_offset = 0;
 	for (int i = 0; i < num_columns; i += 2)
 	{
-		futures.push_back(pool.submit_task([=]
+		int start = i * pixels_per_group + random_offset * (i == 0);
+		int end = (i + 1) * pixels_per_group + random_offset;
+		pool.detach_task([=]
 		{
-			iterate_bottom_to_top(i * pixels_per_group, pixels_per_group);
+			iterate_bottom_to_top(start, end);
+			iterate_top_to_bottom(start, end);
 		}
-		));
+		);
 	}
 
-	for (auto& f : futures) f.wait();
+	pool.wait();
 
 	for (int i = 1; i < num_columns; i += 2)
 	{
-		futures.push_back(pool.submit_task([=]
-			{
-				iterate_bottom_to_top(i * pixels_per_group, pixels_per_group);
-			}
-		));
+		int start = i * pixels_per_group + random_offset;
+		int end = (i + 1) * pixels_per_group + random_offset;
+		pool.detach_task([=]
+		{
+			iterate_bottom_to_top(start, end);
+			iterate_top_to_bottom(start, end);
+		}
+		);
 	}
 
-	for (auto& f : futures) f.wait();
+	pool.wait();
 }
 
 void Simulation::solid(Particle* p, int x, int y)
