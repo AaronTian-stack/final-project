@@ -54,6 +54,13 @@ XMINT2 Simulation::raycast(int x, int y, int vx, int vy)
 
 void Simulation::simulate(float delta)
 {
+	// pick directions for each row
+	std::vector<bool> directions(grid->get_height());
+	for (int i = 0; i < grid->get_height(); i++)
+	{
+		directions[i] = dist(mt) < 0.5f;
+	}
+
 	const int num_columns = std::thread::hardware_concurrency();
 	int pixels_per_group = ceil(grid->get_width() / num_columns);
 	//auto step = pixels_per_group * 2;
@@ -65,14 +72,15 @@ void Simulation::simulate(float delta)
 	//		tbb::parallel_for(tbb::blocked_range(start, start + iterations),
 	//			[this, delta](const tbb::blocked_range<int>& range)
 	//			{
-	auto iterate_bottom_to_top = [this, delta](int start, int end)
+	auto iterate_bottom_to_top = [this, delta, directions](int start, int end)
 		{
 			if (start >= static_cast<int>(grid->get_width())) return;
 			auto xr = std::min(end, static_cast<int>(grid->get_width()));
 			for (int y = grid->get_height() - 1; y >= 0; --y)
 			{
-				for (int x = start; x < xr; x++)
+				for (int xi = start; xi < xr; xi++)
 				{
+					int x = directions[y] ? xi : xr - xi + start - 1;
 					auto particle = grid->get(x, y);
 
 					if (!ParticleUtils::reversed_simulation(particle->type))
@@ -128,14 +136,15 @@ void Simulation::simulate(float delta)
 	//		tbb::parallel_for(tbb::blocked_range(start, start + iterations),
 	//			[this, delta](const tbb::blocked_range<int>& range)
 	//			{
-					auto iterate_top_to_bottom = [this, delta](int start, int end)
+					auto iterate_top_to_bottom = [this, delta, directions](int start, int end)
 						{
 							if (start >= static_cast<int>(grid->get_width())) return;
 							auto xr = std::min(end, static_cast<int>(grid->get_width()));
 							for (int y = 0; y < grid->get_height(); ++y)
 							{
-								for (int x = start; x < xr; x++)
+								for (int xi = start; xi < xr; xi++)
 								{
+									int x = directions[y] ? xi : xr - xi + start - 1;
 									auto particle = grid->get(x, y);
 
 									if (ParticleUtils::reversed_simulation(particle->type))
@@ -179,13 +188,15 @@ void Simulation::simulate(float delta)
 	//tg.wait();
 	assert(num_columns % 2 == 0);
 	int random_offset = dist(mt) * pixels_per_group;
-	//int random_offset = 0;
+
 	for (int i = 0; i < num_columns; i += 2)
 	{
 		int start = i * pixels_per_group + random_offset * (i == 0);
 		int end = (i + 1) * pixels_per_group + random_offset;
 		pool.detach_task([=]
 		{
+			thread_local std::mt19937 mt(std::random_device{}());
+			thread_local std::uniform_real_distribution<float> dist(0.0f, 1.0f);
 			iterate_bottom_to_top(start, end);
 			iterate_top_to_bottom(start, end);
 		}
@@ -200,6 +211,8 @@ void Simulation::simulate(float delta)
 		int end = (i + 1) * pixels_per_group + random_offset;
 		pool.detach_task([=]
 		{
+			thread_local std::mt19937 mt(std::random_device{}());
+			thread_local std::uniform_real_distribution<float> dist(0.0f, 1.0f);
 			iterate_bottom_to_top(start, end);
 			iterate_top_to_bottom(start, end);
 		}
