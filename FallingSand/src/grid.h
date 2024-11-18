@@ -100,10 +100,15 @@ public:
 	unsigned int get_width() const { return width; }
 	unsigned int get_height() const { return height; }
 
-	bool is_valid(int x, int y) const { return x >= 0 && x < (int)width && y >= 0 && y < (int)height; }
+	bool is_valid(int x, int y) const;
 	bool is_air(int x, int y);
 	bool is_liquid(int x, int y);
 	bool is_solid(int x, int y);
 	bool is_burning(int x, int y);
 	bool is_denser(Particle* particle, int x, int y);
 };
+
+inline bool Grid::is_valid(int x, int y) const
+{
+	return x >= 0 && x < width && y >= 0 && y < height;
+}

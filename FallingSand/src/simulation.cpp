@@ -1,7 +1,7 @@
 ﻿#include "simulation.h"
 
 #include <iostream>
-#include <tbb/tbb.h>
+#include <Tracy.hpp>
 
 Simulation::Simulation(Grid* grid) : mt(rd()), dist(0.0f, 1.0f), grid(grid), gravity(4.0f)
 {
@@ -11,7 +11,6 @@ Simulation::Simulation(Grid* grid) : mt(rd()), dist(0.0f, 1.0f), grid(grid), gra
 
 XMINT2 Simulation::raycast(int x, int y, int vx, int vy)
 {
-	ZoneScoped;
 	// don't really care about a precise position of particles so just use bresenham
 	int x1 = x + vx;
 	int y1 = y + vy;
@@ -48,7 +47,7 @@ XMINT2 Simulation::raycast(int x, int y, int vx, int vy)
 	}
 }
 
-std::vector<int> Simulation::update(float delta)
+void Simulation::update(float delta, BS::thread_pool& pool)
 {
 	ZoneScoped;
 	// pick directions for each row
@@ -59,19 +58,10 @@ std::vector<int> Simulation::update(float delta)
 	}
 
 	const int num_columns = pool.get_thread_count();
-	int pixels_per_group = ceil(grid->get_width() / num_columns);
-	//auto step = pixels_per_group * 2;
+	const int pixels_per_group = ceil(grid->get_width() / num_columns);
 
-	//tbb::task_group tg;
-
-	//auto process_columns = [this, delta, directions, step](int start, int end)
-	//	{
-	//		tbb::parallel_for(tbb::blocked_range(start, end),
-	//			[this, start, end, directions, delta](const tbb::blocked_range<int>& range)
-	//			{
 	auto iterate_bottom_to_top = [this, delta, directions](int start, int end)
 		{
-			ZoneScoped;
 			if (start >= static_cast<int>(grid->get_width())) return;
 			auto xr = std::min(end, static_cast<int>(grid->get_width()));
 			for (int y = grid->get_height() - 1; y >= 0; --y)
@@ -128,107 +118,77 @@ std::vector<int> Simulation::update(float delta)
 				}
 			}
 		};
-		//		});
-		//};
 
-	//auto process_rising_columns = [this, delta, directions, step](int start, int end)
-	//	{
-	//		tbb::parallel_for(tbb::blocked_range(start, end),
-	//			[this, start, end, directions, delta](const tbb::blocked_range<int>& range)
-	//			{
-					auto iterate_top_to_bottom = [this, delta, directions](int start, int end)
+	auto iterate_top_to_bottom = [this, delta, directions](int start, int end)
+		{
+			if (start >= static_cast<int>(grid->get_width())) return;
+			auto xr = std::min(end, static_cast<int>(grid->get_width()));
+			for (int y = 0; y < grid->get_height(); ++y)
+			{
+				for (int xi = start; xi < xr; xi++)
+				{
+					int x = directions[y] ? xi : xr - xi + start - 1;
+					auto particle = grid->get(x, y);
+
+					if (ParticleUtils::reversed_simulation(particle->type))
+					{
+						particle->life_time -= delta;
+						if (particle->dying && particle->life_time < 0)
+							grid->set(x, y, Particle::EMPTY);
+
+						switch (particle->type)
 						{
-							ZoneScoped;
-							if (start >= static_cast<int>(grid->get_width())) return;
-							auto xr = std::min(end, static_cast<int>(grid->get_width()));
-							for (int y = 0; y < grid->get_height(); ++y)
-							{
-								for (int xi = start; xi < xr; xi++)
-								{
-									int x = directions[y] ? xi : xr - xi + start - 1;
-									auto particle = grid->get(x, y);
+						case Particle::SMOKE:
+							smoke(particle, x, y);
+							break;
+						case Particle::FIRE:
+							fire(particle, x, y);
+							break;
+						default:
+							break;
+						}
+					}
+				}
+			}
+		};
 
-									if (ParticleUtils::reversed_simulation(particle->type))
-									{
-										particle->life_time -= delta;
-										if (particle->dying && particle->life_time < 0)
-											grid->set(x, y, Particle::EMPTY);
-
-										switch (particle->type)
-										{
-										case Particle::SMOKE:
-											smoke(particle, x, y);
-											break;
-										case Particle::FIRE:
-											fire(particle, x, y);
-											break;
-										default:
-											break;
-										}
-									}
-								}
-							}
-						};
-		//		});
-		//};
-
-	//for (int i = 0; i < num_columns; i += 2)
-	//{
-	//	tg.run([=] { process_columns(i * step, (i + 1) * step); });
-	//	tg.run([=] { process_rising_columns(i * step, (i + 1) * step); });
-	//}
-
-	//tg.wait();
-
-	//for (int i = 1; i < num_columns; i += 2)
-	//{
-	//	tg.run([=] { process_columns(i * step, (i + 1) * step); });
-	//	tg.run([=] { process_rising_columns(i * step, (i + 1) * step); });
-	//}
-
-	//tg.wait();
-
-	std::vector<int> debug(num_columns);
+	BS::multi_future<void> futures;
 
 	assert(num_columns % 2 == 0);
 	int random_offset = dist(mt) * pixels_per_group * 0.5;
 
 	for (int i = 0; i < num_columns; i += 2)
 	{
-		int start = i * pixels_per_group + random_offset * (i == 0);
+		int start = i * pixels_per_group + random_offset * (i > 0);
 		int end = (i + 1) * pixels_per_group + random_offset;
-		debug[i] = end;
-		pool.detach_task([=]
-		{
-			thread_local std::mt19937 mt(std::random_device{}());
-			thread_local std::uniform_real_distribution<float> dist(0.0f, 1.0f);
-			iterate_bottom_to_top(start, end);
-			iterate_top_to_bottom(start, end);
-		}
-		);
+		//debug[i] = end;
+		futures.push_back(pool.submit_task([=]
+			{
+				iterate_bottom_to_top(start, end);
+				iterate_top_to_bottom(start, end);
+			}
+		));
 	}
-	pool.wait();
+	futures.wait();
 
 	for (int i = 1; i < num_columns; i += 2)
 	{
 		int start = i * pixels_per_group + random_offset;
 		int end = (i + 1) * pixels_per_group + random_offset;
-		debug[i] = end;
-		pool.detach_task([=]
-		{
-			thread_local std::mt19937 mt(std::random_device{}());
-			thread_local std::uniform_real_distribution<float> dist(0.0f, 1.0f);
-			iterate_bottom_to_top(start, end);
-			iterate_top_to_bottom(start, end);
-		}
-		);
+		//debug[i] = end;
+		futures.push_back(pool.submit_task([=]
+			{
+				iterate_bottom_to_top(start, end);
+				iterate_top_to_bottom(start, end);
+			}
+		));
 	}
-	pool.wait();
+	futures.wait();
 
 	//iterate_bottom_to_top(0, grid->get_width());
 	//iterate_top_to_bottom(0, grid->get_width());
 
-	return debug;
+	//return debug;
 }
 
 void Simulation::solid(Particle* p, int x, int y)
@@ -281,7 +241,6 @@ void Simulation::liquid(Particle* p, int x, int y)
 
 void Simulation::air(Particle* p, int x, int y)
 {
-	ZoneScoped;
 	if (grid->is_denser(p, x, y - 1))
 	{
 		grid->swap(x, y, x, y - 1);

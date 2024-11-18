@@ -98,6 +98,7 @@ void Grid::set(int x, int y, Particle::Type particle_type)
 
 void Grid::swap(int x1, int y1, int x2, int y2)
 {
+	if (!is_valid(x1, y1) || !is_valid(x2, y2)) return;
 	auto xy1 = get(x1, y1);
 	auto xy2 = get(x2, y2);
 	if (!xy1 || !xy2) return;

@@ -14,12 +14,10 @@
 
 int main()
 {
-	//*** REMOVE TRACY_ENABLE FROM ENVIRONMENT VARIABLES ON REAL RELEASE ***//
+	//*** REMOVE TRACY_ENABLE FROM PREPROCESSOR DEFINITION ON REAL RELEASE OR ELSE MEMORY WILL KEEP GROWING ***//
 
-	// TODO: use SDL to draw UI, debugging grids/lines...
-	// Slows down at 1920x1000 (8 ms simulation)
-	const int WIDTH = 1920;
-	const int HEIGHT = 1000;
+	const int WIDTH = 1600;
+	const int HEIGHT = 900;
 
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 	{
@@ -64,6 +62,8 @@ int main()
 
 	Particle::Type curr_particle = Particle::SAND;
 
+	BS::thread_pool pool;
+
 	bool quit = false;
 	double delta = 0.f;
 	while (!quit)
@@ -94,7 +94,7 @@ int main()
 		}
 		// start timer
 		static Uint64 last_time = SDL_GetTicks64();
-		auto debug = simulation.update(delta);
+		simulation.update(delta, pool);
 		
 		// click to draw
 		// TODO: customize brush
@@ -114,7 +114,7 @@ int main()
 
 		uint32_t* pixel_data = static_cast<uint32_t*>(pixels);
 
-		SDL_Util::update_texture_via_grid(pixel_data, grid, WIDTH, HEIGHT, pitch);
+		SDL_Util::update_texture_via_grid(pool, pixel_data, grid, WIDTH, HEIGHT, pitch);
 
 		int mouseX, mouseY;
 		SDL_GetMouseState(&mouseX, &mouseY);

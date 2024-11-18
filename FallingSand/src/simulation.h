@@ -3,7 +3,6 @@
 
 #include "grid.h"
 #include <BS_thread_pool.hpp>
-#include <Tracy.hpp>
 
 class Simulation
 {
@@ -13,7 +12,6 @@ class Simulation
 	std::uniform_real_distribution<float> dist;
 	Grid* grid;
 	float gravity;
-	BS::thread_pool pool;
 public:
 	Simulation(Grid* grid);
 
@@ -21,7 +19,7 @@ public:
 	XMINT2 raycast(int x, int y, int vx, int vy);
 
 	// Only particles with gravity can be simulated bottom to top. Would not work with smoke for example
-	std::vector<int> update(float delta);
+	void update(float delta, BS::thread_pool& pool);
 	void solid(Particle* particle, int x, int y);
 	void liquid(Particle* particle, int x, int y);
 	void air(Particle* particle, int x, int y);
