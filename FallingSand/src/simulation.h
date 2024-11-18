@@ -3,6 +3,7 @@
 
 #include "grid.h"
 #include <BS_thread_pool.hpp>
+#include <Tracy.hpp>
 
 class Simulation
 {

@@ -11,6 +11,7 @@ Simulation::Simulation(Grid* grid) : mt(rd()), dist(0.0f, 1.0f), grid(grid), gra
 
 XMINT2 Simulation::raycast(int x, int y, int vx, int vy)
 {
+	ZoneScoped;
 	// don't really care about a precise position of particles so just use bresenham
 	int x1 = x + vx;
 	int y1 = y + vy;
@@ -49,6 +50,7 @@ XMINT2 Simulation::raycast(int x, int y, int vx, int vy)
 
 std::vector<int> Simulation::update(float delta)
 {
+	ZoneScoped;
 	// pick directions for each row
 	std::vector<bool> directions(grid->get_height());
 	for (int i = 0; i < grid->get_height(); i++)
@@ -56,19 +58,20 @@ std::vector<int> Simulation::update(float delta)
 		directions[i] = dist(mt) < 0.5f;
 	}
 
-	const int num_columns = std::thread::hardware_concurrency();
+	const int num_columns = pool.get_thread_count();
 	int pixels_per_group = ceil(grid->get_width() / num_columns);
 	//auto step = pixels_per_group * 2;
 
 	//tbb::task_group tg;
 
-	//auto process_columns = [this, delta, step](int start, int iterations)
+	//auto process_columns = [this, delta, directions, step](int start, int end)
 	//	{
-	//		tbb::parallel_for(tbb::blocked_range(start, start + iterations),
-	//			[this, delta](const tbb::blocked_range<int>& range)
+	//		tbb::parallel_for(tbb::blocked_range(start, end),
+	//			[this, start, end, directions, delta](const tbb::blocked_range<int>& range)
 	//			{
 	auto iterate_bottom_to_top = [this, delta, directions](int start, int end)
 		{
+			ZoneScoped;
 			if (start >= static_cast<int>(grid->get_width())) return;
 			auto xr = std::min(end, static_cast<int>(grid->get_width()));
 			for (int y = grid->get_height() - 1; y >= 0; --y)
@@ -128,13 +131,14 @@ std::vector<int> Simulation::update(float delta)
 		//		});
 		//};
 
-	//auto process_rising_columns = [this, delta, step](int start, int iterations)
+	//auto process_rising_columns = [this, delta, directions, step](int start, int end)
 	//	{
-	//		tbb::parallel_for(tbb::blocked_range(start, start + iterations),
-	//			[this, delta](const tbb::blocked_range<int>& range)
+	//		tbb::parallel_for(tbb::blocked_range(start, end),
+	//			[this, start, end, directions, delta](const tbb::blocked_range<int>& range)
 	//			{
 					auto iterate_top_to_bottom = [this, delta, directions](int start, int end)
 						{
+							ZoneScoped;
 							if (start >= static_cast<int>(grid->get_width())) return;
 							auto xr = std::min(end, static_cast<int>(grid->get_width()));
 							for (int y = 0; y < grid->get_height(); ++y)
@@ -170,16 +174,16 @@ std::vector<int> Simulation::update(float delta)
 
 	//for (int i = 0; i < num_columns; i += 2)
 	//{
-	//	tg.run([=] { process_columns(i * step, step); });
-	//	tg.run([=] { process_rising_columns(i * step, step); });
+	//	tg.run([=] { process_columns(i * step, (i + 1) * step); });
+	//	tg.run([=] { process_rising_columns(i * step, (i + 1) * step); });
 	//}
 
 	//tg.wait();
 
 	//for (int i = 1; i < num_columns; i += 2)
 	//{
-	//	tg.run([=] { process_columns(i * step, step); });
-	//	tg.run([=] { process_rising_columns(i * step, step); });
+	//	tg.run([=] { process_columns(i * step, (i + 1) * step); });
+	//	tg.run([=] { process_rising_columns(i * step, (i + 1) * step); });
 	//}
 
 	//tg.wait();
@@ -277,6 +281,7 @@ void Simulation::liquid(Particle* p, int x, int y)
 
 void Simulation::air(Particle* p, int x, int y)
 {
+	ZoneScoped;
 	if (grid->is_denser(p, x, y - 1))
 	{
 		grid->swap(x, y, x, y - 1);

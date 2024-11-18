@@ -10,12 +10,16 @@
 
 //#define DEBUGGING
 
+#include <Tracy.hpp>
+
 int main()
 {
+	//*** REMOVE TRACY_ENABLE FROM ENVIRONMENT VARIABLES ON REAL RELEASE ***//
+
 	// TODO: use SDL to draw UI, debugging grids/lines...
 	// Slows down at 1920x1000 (8 ms simulation)
-	const int WIDTH = 1280;
-	const int HEIGHT = 720;
+	const int WIDTH = 1920;
+	const int HEIGHT = 1000;
 
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 	{
@@ -62,7 +66,6 @@ int main()
 
 	bool quit = false;
 	double delta = 0.f;
-	int prev_mouseX = 0, prev_mouseY = 0;
 	while (!quit)
 	{
 		SDL_Event event;
@@ -90,19 +93,8 @@ int main()
 			}
 		}
 		// start timer
-		//std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 		static Uint64 last_time = SDL_GetTicks64();
 		auto debug = simulation.update(delta);
-		static Uint64 current_time = SDL_GetTicks64();
-		//std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-		//auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
-#if(defined NDEBUG && defined DEBUGGING)
-		std::cout << "Simulation time: " << current_time - last_time << " ms\n";
-		std::cout << "Simulation time CHRONO: " << elapsed << " ms" << std::endl;
-#endif
-		int mouseX, mouseY;
-		SDL_GetMouseState(&mouseX, &mouseY);
-		//auto velocity = XMFLOAT2{ static_cast<float>(mouseX - prev_mouseX) * 0.1f, static_cast<float>(mouseY - prev_mouseY) * 0.1f };
 		
 		// click to draw
 		// TODO: customize brush
@@ -121,15 +113,11 @@ int main()
 		}
 
 		uint32_t* pixel_data = static_cast<uint32_t*>(pixels);
-		for (int y = 0; y < HEIGHT; ++y)
-		{
-			for (int x = 0; x < WIDTH; ++x)
-			{
-				auto particle = grid.get(x, y);
-				pixel_data[y * (pitch / 4) + x] = particle->color.hex();
-			}
-		}
 
+		SDL_Util::update_texture_via_grid(pixel_data, grid, WIDTH, HEIGHT, pitch);
+
+		int mouseX, mouseY;
+		SDL_GetMouseState(&mouseX, &mouseY);
 		Color mouseColor = ParticleUtils::colors.at(curr_particle);
 		SDL_Util::draw_circle(
 			{
@@ -161,10 +149,7 @@ int main()
 		std::cout << "Delta time: " << delta * 1000 << " ms" << std::endl;
 #endif
 
-		//SDL_Delay(16); // wait 16 ms (frame lock)
-
-		prev_mouseX = mouseX;
-		prev_mouseY = mouseY;
+		FrameMark;
 	}
 
 	SDL_DestroyTexture(texture);
