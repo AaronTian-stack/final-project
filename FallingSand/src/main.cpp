@@ -16,8 +16,8 @@ int main()
 {
 	//*** REMOVE TRACY_ENABLE FROM PREPROCESSOR DEFINITION ON REAL RELEASE OR ELSE MEMORY WILL KEEP GROWING ***//
 
-	const int WIDTH = 1600;
-	const int HEIGHT = 900;
+	const int WIDTH = 1280;
+	const int HEIGHT = 720;
 
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 	{
