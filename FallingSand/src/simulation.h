@@ -20,6 +20,7 @@ public:
 
 	bool burns(Particle* particle, int x, int y);
 	bool dissolves(Particle* particle, int x, int y);
+	bool extinguishes(Particle* particle, int x, int y);
 
 	void sand(Particle* particle, int x, int y);
 	void water(Particle* particle, int x, int y);
@@ -29,4 +30,5 @@ public:
 	void salt(Particle* particle, int x, int y);
 	void acid(Particle* particle, int x, int y);
 	void gasoline(Particle* p, int x, int y);
+	void vine(Particle* p, int x, int y);
 };

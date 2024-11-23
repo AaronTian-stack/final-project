@@ -29,7 +29,8 @@ struct Particle
 		SALT = 1 << 6,
 		ACID = 1 << 7,
 		GASOLINE = 1 << 8,
-		EMPTY = 1 << 9,
+		VINE = 1 << 9,
+		EMPTY = 1 << 10,
 	};
 	// TOTAL = 36 bytes
 	XMFLOAT2 velocity = { 0, 0 }; // 8
@@ -59,11 +60,12 @@ struct ParticleUtils
 		{ Particle::SALT, Color(0xDDDDDD) },
 		{ Particle::ACID, Color(0x8FFE09) },
 		{ Particle::GASOLINE, Color(0xFFA500) },
+		{ Particle::VINE, Color(0x0C5600) },
 	};
 
 	static bool is_solid(Particle::Type type)
 	{
-		return type & (Particle::SAND | Particle::STONE | Particle::WOOD | Particle::SALT);
+		return type & (Particle::SAND | Particle::STONE | Particle::WOOD | Particle::SALT | Particle::VINE);
 	}
 
 	static bool is_liquid(Particle::Type type)
@@ -88,7 +90,7 @@ struct ParticleUtils
 
 	static bool use_solid_brush(Particle::Type type)
 	{
-		return type & (Particle::EMPTY | Particle::STONE | Particle::WOOD);
+		return type & (Particle::EMPTY | Particle::STONE | Particle::WOOD | Particle::VINE);
 	}
 };
 
@@ -112,6 +114,7 @@ public:
 	bool is_liquid(int x, int y);
 	bool is_solid(int x, int y);
 	bool is_burning(int x, int y);
+	bool is_extinguisher(int x, int y);
 	bool is_denser(Particle* particle, int x, int y);
 };
 
