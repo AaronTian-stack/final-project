@@ -66,7 +66,6 @@ void Grid::set(int x, int y, Particle::Type particle_type)
 	case Particle::FIRE:
 		p.life_time = 0.2f + 0.1f * thread_rand();
 		p.density = 2;
-		p.dissolvability = 0.5;
 		p.burning = true;
 		p.dying = true;
 		p.color = Color_Util::vary_color(p.color);
@@ -86,6 +85,9 @@ void Grid::set(int x, int y, Particle::Type particle_type)
 	case Particle::GASOLINE:
 		p.density = 25;
 		p.flammability = 0.04;
+		break;
+	case Particle::VINE:
+		p.density = 150;
 		break;
 	default:
 		break;
@@ -127,6 +129,12 @@ bool Grid::is_burning(int x, int y)
 {
 	if (!is_valid(x, y)) return false;
 	return get(x, y)->burning;
+}
+
+bool Grid::is_extinguisher(int x, int y)
+{
+	if (!is_valid(x, y)) return false;
+	return get(x, y)->type & Particle::WATER;
 }
 
 bool Grid::is_denser(Particle* particle, int x, int y)

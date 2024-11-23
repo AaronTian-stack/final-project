@@ -111,6 +111,9 @@ void Simulation::update(float delta, BS::thread_pool& pool)
 					case Particle::GASOLINE:
 						gasoline(particle, x, y);
 						break;
+					case Particle::VINE:
+						vine(particle, x, y);
+						break;
 					default:
 						break;
 					}
@@ -296,6 +299,23 @@ bool Simulation::dissolves(Particle* p, int x, int y)
 	return thread_rand() < p->dissolvability * dissolveProbability;
 }
 
+bool Simulation::extinguishes(Particle* p, int x, int y)
+{
+	float extinguishProbability = 0;
+	std::array dx = { 1, 1, 0, -1, -1, -1,  0,  1 };
+	std::array dy = { 0, 1, 1,  1,  0, -1, -1, -1 };
+
+	for (int i = 0; i < 8; ++i)
+	{
+		int nx = x + dx[i];
+		int ny = y + dy[i];
+		if (grid->is_extinguisher(nx, ny))
+			extinguishProbability += 0.5 + thread_rand() * 0.5;
+	}
+
+	return thread_rand() < 0.5 * extinguishProbability;
+}
+
 void Simulation::sand(Particle* p, int x, int y)
 {
 	solid(p, x, y);
@@ -325,7 +345,7 @@ void Simulation::smoke(Particle* p, int x, int y)
 
 void Simulation::fire(Particle* p, int x, int y)
 {
-	if (dissolves(p, x, y))
+	if (extinguishes(p, x, y))
 	{
 		// Liquid puts out fire
 		grid->set(x, y, Particle::SMOKE);
@@ -380,4 +400,8 @@ void Simulation::gasoline(Particle* p, int x, int y)
 		grid->get(x, y)->life_time = 1.0 + thread_rand();
 	}
 	liquid(p, x, y);
+}
+
+void Simulation::vine(Particle* p, int x, int y)
+{
 }
