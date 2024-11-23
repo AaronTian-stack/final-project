@@ -53,7 +53,7 @@ void Grid::set(int x, int y, Particle::Type particle_type)
 		break;
 	case Particle::WOOD:
 		p.density = 200.f;
-		p.flammability = 0.025f;
+		p.flammability = 0.1f;
 		p.corrodibility = 0.05f;
 		p.color = Color_Util::vary_color(p.color);
 		break;
@@ -84,7 +84,7 @@ void Grid::set(int x, int y, Particle::Type particle_type)
 		break;
 	case Particle::GASOLINE:
 		p.density = 25.f;
-		p.flammability = 1.f;
+		p.flammability = 0.15f;
 		break;
 	case Particle::VINE:
 		p.density = 150;
