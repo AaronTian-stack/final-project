@@ -7,6 +7,14 @@
 #include "color.h"
 #include <tsl/robin_map.h>
 
+// Threadsafe random generator
+inline float thread_rand()
+{
+	static thread_local std::mt19937 generator(std::random_device{}());
+	std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
+	return distribution(generator);
+}
+
 struct Particle
 {
 	enum Type : uint16_t
@@ -85,9 +93,6 @@ struct ParticleUtils
 
 class Grid
 {
-	std::random_device rd;
-	std::mt19937 mt;
-	std::uniform_real_distribution<float> dist;
 	Particle* grid; // save overhead of size, capacity from vector
 	unsigned int width;
 	unsigned int height;

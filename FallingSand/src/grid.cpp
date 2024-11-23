@@ -3,7 +3,7 @@
 #include <iostream>
 #include <ostream>
 
-Grid::Grid(unsigned int width, unsigned int height) : width(width), height(height), mt(rd()), dist(0.0f, 1.0f)
+Grid::Grid(unsigned int width, unsigned int height) : width(width), height(height)
 {
 	this->grid = new Particle[static_cast<size_t>(width * height)];
 }
@@ -60,13 +60,13 @@ void Grid::set(int x, int y, Particle::Type particle_type)
 		p.color = Color_Util::vary_color(p.color);
 		break;
 	case Particle::SMOKE:
-		p.life_time = 0.05f + 2.0f * dist(mt);
+		p.life_time = 0.05f + 2.0f * thread_rand();
 		p.density = 1;
 		p.dying = true;
 		p.color = Color_Util::vary_color(p.color);
 		break;
 	case Particle::FIRE:
-		p.life_time = 0.2f + 0.1f * dist(mt);
+		p.life_time = 0.2f + 0.1f * thread_rand();
 		p.density = 2;
 		p.dissolvability = 0.5;
 		p.burning = true;
@@ -74,14 +74,14 @@ void Grid::set(int x, int y, Particle::Type particle_type)
 		p.color = Color_Util::vary_color(p.color);
 		break;
 	case Particle::SALT:
-		p.life_time = 0.5f + 1.5f * dist(mt);
+		p.life_time = 0.5f + 1.5f * thread_rand();
 		p.density = 100;
 		p.dissolvability = 0.05;
 		p.corrodibility = 0.15;
 		p.color = Color_Util::vary_color(p.color);
 		break;
 	case Particle::ACID:
-		p.life_time = 5.0f + 5.0f * dist(mt);
+		p.life_time = 5.0f + 5.0f * thread_rand();
 		p.density = 60;
 		p.dissolvability = 0.005;
 		break;

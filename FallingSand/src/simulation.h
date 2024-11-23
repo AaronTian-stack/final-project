@@ -1,15 +1,9 @@
 ﻿#pragma once
-#include <random>
-
 #include "grid.h"
 #include <BS_thread_pool.hpp>
 
 class Simulation
 {
-	// TODO: for multithreading will need one of these for each thread
-	std::random_device rd;
-	std::mt19937 mt;
-	std::uniform_real_distribution<float> dist;
 	Grid* grid;
 	float gravity;
 public:

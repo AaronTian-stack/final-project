@@ -57,7 +57,7 @@ int main()
 
 	Grid grid(WIDTH, HEIGHT);
 	CircleBrush circle_brush(brush_width);
-	RandomBrush rand_brush(brush_width, 0.02f);
+	RandomBrush rand_brush(brush_width, 0.1f);
 	Simulation simulation(&grid);
 
 	Particle::Type curr_particle = Particle::SAND;
@@ -78,10 +78,10 @@ int main()
 			case SDL_KEYDOWN:
 				switch (event.key.keysym.sym)
 				{
-			case SDLK_LEFT:
-				curr_particle = static_cast<Particle::Type>(std::max(curr_particle / 2, static_cast<int>(Particle::SAND)));
+				case SDLK_LEFT:
+					curr_particle = static_cast<Particle::Type>(std::max(curr_particle / 2, static_cast<int>(Particle::SAND)));
 					break;
-			case SDLK_RIGHT:
+				case SDLK_RIGHT:
 					curr_particle = static_cast<Particle::Type>(std::max(curr_particle * 2 % Particle::EMPTY, static_cast<int>(Particle::SAND)));
 					break;
 				default:

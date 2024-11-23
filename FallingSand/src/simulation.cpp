@@ -3,7 +3,7 @@
 #include <iostream>
 #include <Tracy.hpp>
 
-Simulation::Simulation(Grid* grid) : mt(rd()), dist(0.0f, 1.0f), grid(grid), gravity(4.0f)
+Simulation::Simulation(Grid* grid) : grid(grid), gravity(4.0f)
 {
 	// TODO: make gravity changeable at runtime
 	assert(grid);
@@ -54,7 +54,7 @@ void Simulation::update(float delta, BS::thread_pool& pool)
 	std::vector<bool> directions(grid->get_height());
 	for (int i = 0; i < grid->get_height(); i++)
 	{
-		directions[i] = dist(mt) < 0.5f;
+		directions[i] = thread_rand() < 0.5f;
 	}
 
 	const int num_columns = pool.get_thread_count();
@@ -112,6 +112,7 @@ void Simulation::update(float delta, BS::thread_pool& pool)
 						break;
 					case Particle::GASOLINE:
 						gasoline(particle, x, y);
+						break;
 					default:
 						break;
 					}
@@ -155,7 +156,7 @@ void Simulation::update(float delta, BS::thread_pool& pool)
 	BS::multi_future<void> futures;
 
 	assert(num_columns % 2 == 0);
-	int random_offset = dist(mt) * pixels_per_group * 0.5;
+	int random_offset = thread_rand() * pixels_per_group * 0.5;
 
 	for (int i = 0; i < num_columns; i += 2)
 	{
@@ -274,10 +275,10 @@ bool Simulation::burns(Particle* p, int x, int y)
 		int nx = x + dx[i];
 		int ny = y + dy[i];
 		if (grid->is_burning(nx, ny))
-			burnProbability += 0.5 + dist(mt) * 0.5;
+			burnProbability += 0.5 + thread_rand() * 0.5;
 	}
 
-	return dist(mt) < p->flammability * burnProbability;
+	return thread_rand() < p->flammability * burnProbability;
 }
 
 bool Simulation::dissolves(Particle* p, int x, int y)
@@ -291,10 +292,10 @@ bool Simulation::dissolves(Particle* p, int x, int y)
 		int nx = x + dx[i];
 		int ny = y + dy[i];
 		if (grid->is_liquid(nx, ny))
-			dissolveProbability += 0.5 + dist(mt) * 0.5;
+			dissolveProbability += 0.5 + thread_rand() * 0.5;
 	}
 
-	return dist(mt) < p->dissolvability * dissolveProbability;
+	return thread_rand() < p->dissolvability * dissolveProbability;
 }
 
 void Simulation::sand(Particle* p, int x, int y)
@@ -313,13 +314,13 @@ void Simulation::wood(Particle* p, int x, int y)
 	{
 		grid->set(x, y, Particle::FIRE);
 		// TODO: customize burn time based on particle type
-		grid->get(x, y)->life_time = 1.0 + dist(mt);
+		grid->get(x, y)->life_time = 1.0 + thread_rand();
 	}
 }
 
 void Simulation::smoke(Particle* p, int x, int y)
 {
-	if (p->life_time < 0.2f + dist(mt))
+	if (p->life_time < 0.2f + thread_rand())
 		p->burning = false;
 	air(p, x, y);
 }
@@ -331,7 +332,7 @@ void Simulation::fire(Particle* p, int x, int y)
 		// Liquid puts out fire
 		grid->set(x, y, Particle::SMOKE);
 	}
-	else if (p->life_time < 0.1f + 0.1f * dist(mt))
+	else if (p->life_time < 0.1f + 0.1f * thread_rand())
 	{
 		// Become smoke
 		grid->set(x, y, Particle::SMOKE);
@@ -342,7 +343,10 @@ void Simulation::fire(Particle* p, int x, int y)
 void Simulation::salt(Particle* p, int x, int y)
 {
 	if (dissolves(p, x, y))
+	{
+		std::cout << "Dissolving!" << std::endl;
 		p->dying = true;
+	}
 	solid(p, x, y);
 }
 
@@ -358,7 +362,7 @@ void Simulation::acid(Particle* p, int x, int y)
 		if (grid->is_solid(nx, ny))
 		{
 			auto np = grid->get(nx, ny);
-			if (np && dist(mt) < np->corrodibility)
+			if (np && thread_rand() < np->corrodibility)
 			{
 				grid->set(nx, ny, Particle::EMPTY);
 				break;
@@ -378,7 +382,7 @@ void Simulation::gasoline(Particle* p, int x, int y)
 	{
 		grid->set(x, y, Particle::FIRE);
 		// TODO: customize burn time based on particle type
-		grid->get(x, y)->life_time = 1.0 + dist(mt);
+		grid->get(x, y)->life_time = 1.0 + thread_rand();
 	}
 	liquid(p, x, y);
 }
