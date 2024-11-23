@@ -73,7 +73,7 @@ void Grid::set(int x, int y, Particle::Type particle_type)
 		break;
 	case Particle::SALT:
 		p.life_time = 0.5f + 1.5f * thread_rand();
-		p.density = 100;
+		p.density = 100.f;
 		p.dissolvability = 0.05f;
 		p.corrodibility = 0.15f;
 		p.color = Color_Util::vary_color(p.color);
