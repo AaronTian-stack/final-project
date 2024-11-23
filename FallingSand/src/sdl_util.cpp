@@ -41,3 +41,17 @@ void SDL_Util::draw_circle(const CanvasInfo& info, int c_x, int c_y, int radius,
 		points(c_x, c_y, x, y);
 	}
 }
+
+void SDL_Util::update_texture_via_grid(BS::thread_pool& pool, uint32_t* pixel_data, Grid& grid, int width, int height, int pitch)
+{
+	ZoneScoped;
+	const BS::multi_future<void> loop_future = pool.submit_loop<unsigned int>(0, height * width,
+		[&](const unsigned int i)
+		{
+			auto x = i % grid.get_width();
+			auto y = i / grid.get_width();
+			auto particle = grid.get(x, y);
+			pixel_data[y * (pitch / 4) + x] = particle->color.hex();
+		});
+	loop_future.wait();
+}

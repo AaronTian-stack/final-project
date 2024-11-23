@@ -14,7 +14,7 @@ public:
 
 	// brush pattern function
 	virtual bool should_draw(int local_x, int local_y) = 0;
-	void draw_particles(Grid& grid, Particle::Type particle_type);
+	void draw_particles(Grid& grid, Particle::Type particle_type, XMFLOAT2 velocity = {0, 0});
 	int get_brush_size() const { return brush_size; }
 	void set_brush_size(int size) { brush_size = size; }
 

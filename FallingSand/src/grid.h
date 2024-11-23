@@ -6,6 +6,15 @@
 
 #include "color.h"
 #include <tsl/robin_map.h>
+#include <BS_thread_pool_utils.hpp>
+
+// Threadsafe random generator
+inline float thread_rand()
+{
+	static thread_local std::mt19937 generator(std::random_device{}());
+	std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
+	return distribution(generator);
+}
 
 struct Particle
 {
@@ -19,7 +28,8 @@ struct Particle
 		FIRE = 1 << 5,
 		SALT = 1 << 6,
 		ACID = 1 << 7,
-		EMPTY = 1 << 8,
+		GASOLINE = 1 << 8,
+		EMPTY = 1 << 9,
 	};
 	// TOTAL = 36 bytes
 	XMFLOAT2 velocity = { 0, 0 }; // 8
@@ -48,6 +58,7 @@ struct ParticleUtils
 		{ Particle::FIRE, Color(0xFF4500) },
 		{ Particle::SALT, Color(0xDDDDDD) },
 		{ Particle::ACID, Color(0x8FFE09) },
+		{ Particle::GASOLINE, Color(0xFFA500) },
 	};
 
 	static bool is_solid(Particle::Type type)
@@ -57,7 +68,7 @@ struct ParticleUtils
 
 	static bool is_liquid(Particle::Type type)
 	{
-		return type & Particle::WATER;
+		return type & (Particle::WATER | Particle::ACID | Particle::GASOLINE);
 	}
 
 	static bool is_air(Particle::Type type)
@@ -67,7 +78,7 @@ struct ParticleUtils
 
 	static bool affected_by_gravity(Particle::Type type)
 	{
-		return type & (Particle::SAND | Particle::WATER | Particle::SALT | Particle::ACID);
+		return type & (Particle::SAND | Particle::WATER | Particle::SALT | Particle::ACID | Particle::GASOLINE);
 	}
 
 	static bool reversed_simulation(Particle::Type type)
@@ -83,14 +94,12 @@ struct ParticleUtils
 
 class Grid
 {
-	std::random_device rd;
-	std::mt19937 mt;
-	std::uniform_real_distribution<float> dist;
 	Particle* grid; // save overhead of size, capacity from vector
 	unsigned int width;
 	unsigned int height;
+	BS::synced_stream& sync_err;
 public:
-	Grid(unsigned int width, unsigned int height);
+	Grid(unsigned int width, unsigned int height, BS::synced_stream& sync_err);
 	~Grid();
 	Particle* get(int x, int y) const;
 	void set(int x, int y, Particle::Type particle);
@@ -98,10 +107,15 @@ public:
 	unsigned int get_width() const { return width; }
 	unsigned int get_height() const { return height; }
 
-	bool is_valid(int x, int y) const { return x >= 0 && x < (int)width && y >= 0 && y < (int)height; }
+	bool is_valid(int x, int y) const;
 	bool is_air(int x, int y);
 	bool is_liquid(int x, int y);
 	bool is_solid(int x, int y);
 	bool is_burning(int x, int y);
 	bool is_denser(Particle* particle, int x, int y);
 };
+
+inline bool Grid::is_valid(int x, int y) const
+{
+	return x >= 0 && x < width && y >= 0 && y < height;
+}
