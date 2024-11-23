@@ -70,7 +70,7 @@ struct ParticleUtils
 
 	static bool is_liquid(Particle::Type type)
 	{
-		return type & (Particle::WATER | Particle::ACID | Particle::GASOLINE);
+		return type & (Particle::WATER | Particle::ACID);
 	}
 
 	static bool is_air(Particle::Type type)
