@@ -55,14 +55,15 @@ int main()
 
 	int brush_width = 10;
 
-	Grid grid(WIDTH, HEIGHT);
+	BS::synced_stream sync_err(std::cerr);
+	BS::thread_pool pool;
+
+	Grid grid(WIDTH, HEIGHT, sync_err);
 	CircleBrush circle_brush(brush_width);
 	RandomBrush rand_brush(brush_width, 0.1f);
 	Simulation simulation(&grid);
 
 	Particle::Type curr_particle = Particle::SAND;
-
-	BS::thread_pool pool;
 
 	bool quit = false;
 	double delta = 0.f;

@@ -78,10 +78,8 @@ void Simulation::update(float delta, BS::thread_pool& pool)
 							if (grid->is_denser(particle, x, y + 1))
 								particle->velocity.y += gravity * delta;
 
-							//int vx = dist(mt) < 0.5f ? ceil(particle->velocity.x) : floor(particle->velocity.x);
-							//int vy = dist(mt) < 0.5f ? ceil(particle->velocity.y) : floor(particle->velocity.y);
-							int vx = ceil(particle->velocity.x);
-							int vy = ceil(particle->velocity.y);
+							int vx = thread_rand() < 0.5f ? ceil(particle->velocity.x) : floor(particle->velocity.x);
+							int vy = thread_rand() < 0.5f ? ceil(particle->velocity.y) : floor(particle->velocity.y);
 
 							auto rc = raycast(x, y, vx, vy);
 							if (x != rc.x || y != rc.y)

@@ -6,6 +6,7 @@
 
 #include "color.h"
 #include <tsl/robin_map.h>
+#include <BS_thread_pool_utils.hpp>
 
 // Threadsafe random generator
 inline float thread_rand()
@@ -96,8 +97,9 @@ class Grid
 	Particle* grid; // save overhead of size, capacity from vector
 	unsigned int width;
 	unsigned int height;
+	BS::synced_stream& sync_err;
 public:
-	Grid(unsigned int width, unsigned int height);
+	Grid(unsigned int width, unsigned int height, BS::synced_stream& sync_err);
 	~Grid();
 	Particle* get(int x, int y) const;
 	void set(int x, int y, Particle::Type particle);

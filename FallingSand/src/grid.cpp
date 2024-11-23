@@ -1,9 +1,7 @@
 ﻿#include "grid.h"
 
-#include <iostream>
-#include <ostream>
-
-Grid::Grid(unsigned int width, unsigned int height) : width(width), height(height)
+Grid::Grid(unsigned int width, unsigned int height, BS::synced_stream& sync_err) :
+	width(width), height(height), sync_err(sync_err)
 {
 	this->grid = new Particle[static_cast<size_t>(width * height)];
 }
@@ -18,7 +16,7 @@ Particle* Grid::get(int x, int y) const
 	if (x < 0 || x >= width || y < 0 || y >= height)
 	{
 #ifdef DEBUG
-		std::cerr << "GET Out of range: " << x << ", " << y << std::endl;
+		sync_err.println("GET Out of range: ", x, ", ", y);
 #endif
 		return nullptr;
 
@@ -31,7 +29,7 @@ void Grid::set(int x, int y, Particle::Type particle_type)
 	if (x < 0 || x >= width || y < 0 || y >= height)
 	{
 #ifdef DEBUG
-		std::cerr << "SET Out of range: " << x << ", " << y << std::endl;
+		sync_err.println("SET Out of range: ", x, ", ", y);
 #endif
 		return;
 	}
