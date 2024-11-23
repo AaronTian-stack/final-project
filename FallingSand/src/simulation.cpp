@@ -343,10 +343,7 @@ void Simulation::fire(Particle* p, int x, int y)
 void Simulation::salt(Particle* p, int x, int y)
 {
 	if (dissolves(p, x, y))
-	{
-		std::cout << "Dissolving!" << std::endl;
 		p->dying = true;
-	}
 	solid(p, x, y);
 }
 
