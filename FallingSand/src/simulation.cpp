@@ -273,7 +273,7 @@ bool Simulation::burns(Particle* p, int x, int y)
 		int nx = x + dx[i];
 		int ny = y + dy[i];
 		if (grid->is_burning(nx, ny))
-			burnProbability += 0.5 + thread_rand() * 0.5;
+			burnProbability += 0.5f + thread_rand() * 0.5f;
 	}
 
 	return thread_rand() < p->flammability * burnProbability;
@@ -290,7 +290,7 @@ bool Simulation::dissolves(Particle* p, int x, int y)
 		int nx = x + dx[i];
 		int ny = y + dy[i];
 		if (grid->is_liquid(nx, ny))
-			dissolveProbability += 0.5 + thread_rand() * 0.5;
+			dissolveProbability += 0.5f + thread_rand() * 0.5f;
 	}
 
 	return thread_rand() < p->dissolvability * dissolveProbability;
@@ -312,7 +312,7 @@ void Simulation::wood(Particle* p, int x, int y)
 	{
 		grid->set(x, y, Particle::FIRE);
 		// TODO: customize burn time based on particle type
-		grid->get(x, y)->life_time = 1.0 + thread_rand();
+		grid->get(x, y)->life_time = 1.0f + thread_rand();
 	}
 }
 
@@ -373,11 +373,11 @@ void Simulation::acid(Particle* p, int x, int y)
 
 void Simulation::gasoline(Particle* p, int x, int y)
 {
+	liquid(p, x, y);
 	if (burns(p, x, y))
 	{
 		grid->set(x, y, Particle::FIRE);
 		// TODO: customize burn time based on particle type
-		grid->get(x, y)->life_time = 1.0 + thread_rand();
+		grid->get(x, y)->life_time = 1.0f + thread_rand();
 	}
-	liquid(p, x, y);
 }

@@ -41,32 +41,32 @@ void Grid::set(int x, int y, Particle::Type particle_type)
 	switch (particle_type)
 	{
 	case Particle::SAND:
-		p.density = 100;
-		p.corrodibility = 0.01;
+		p.density = 100.f;
+		p.corrodibility = 0.01f;
 		p.color = Color_Util::vary_color(p.color);
 		break;
 	case Particle::WATER:
-		p.density = 50;
+		p.density = 50.f;
 		break;
 	case Particle::STONE:
-		p.density = 500;
+		p.density = 500.f;
 		break;
 	case Particle::WOOD:
-		p.density = 200;
-		p.flammability = 0.025;
-		p.corrodibility = 0.05;
+		p.density = 200.f;
+		p.flammability = 0.025f;
+		p.corrodibility = 0.05f;
 		p.color = Color_Util::vary_color(p.color);
 		break;
 	case Particle::SMOKE:
 		p.life_time = 0.05f + 2.0f * thread_rand();
-		p.density = 1;
+		p.density = 1.f;
 		p.dying = true;
 		p.color = Color_Util::vary_color(p.color);
 		break;
 	case Particle::FIRE:
 		p.life_time = 0.2f + 0.1f * thread_rand();
-		p.density = 2;
-		p.dissolvability = 0.5;
+		p.density = 2.f;
+		p.dissolvability = 0.5f;
 		p.burning = true;
 		p.dying = true;
 		p.color = Color_Util::vary_color(p.color);
@@ -74,18 +74,18 @@ void Grid::set(int x, int y, Particle::Type particle_type)
 	case Particle::SALT:
 		p.life_time = 0.5f + 1.5f * thread_rand();
 		p.density = 100;
-		p.dissolvability = 0.05;
-		p.corrodibility = 0.15;
+		p.dissolvability = 0.05f;
+		p.corrodibility = 0.15f;
 		p.color = Color_Util::vary_color(p.color);
 		break;
 	case Particle::ACID:
 		p.life_time = 5.0f + 5.0f * thread_rand();
-		p.density = 60;
-		p.dissolvability = 0.005;
+		p.density = 60.f;
+		p.dissolvability = 0.005f;
 		break;
 	case Particle::GASOLINE:
-		p.density = 25;
-		p.flammability = 0.04;
+		p.density = 25.f;
+		p.flammability = 1.f;
 		break;
 	default:
 		break;
