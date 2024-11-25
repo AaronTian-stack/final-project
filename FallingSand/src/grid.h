@@ -29,7 +29,7 @@ struct Particle
 		SALT = 1 << 6,
 		ACID = 1 << 7,
 		GASOLINE = 1 << 8,
-		VINE = 1 << 9,
+		MOLD = 1 << 9,
 		EMPTY = 1 << 10,
 	};
 	// TOTAL = 36 bytes
@@ -60,12 +60,12 @@ struct ParticleUtils
 		{ Particle::SALT, Color(0xDDDDDD) },
 		{ Particle::ACID, Color(0x8FFE09) },
 		{ Particle::GASOLINE, Color(0xFFA500) },
-		{ Particle::VINE, Color(0x0C5600) },
+		{ Particle::MOLD, Color(0x6D9D5C) },
 	};
 
 	static bool is_solid(Particle::Type type)
 	{
-		return type & (Particle::SAND | Particle::STONE | Particle::WOOD | Particle::SALT | Particle::VINE);
+		return type & (Particle::SAND | Particle::STONE | Particle::WOOD | Particle::SALT | Particle::MOLD);
 	}
 
 	static bool is_liquid(Particle::Type type)
@@ -90,7 +90,7 @@ struct ParticleUtils
 
 	static bool use_solid_brush(Particle::Type type)
 	{
-		return type & (Particle::EMPTY | Particle::STONE | Particle::WOOD | Particle::VINE);
+		return type & (Particle::EMPTY | Particle::STONE | Particle::WOOD);
 	}
 };
 
@@ -108,6 +108,7 @@ public:
 	void swap(int x1, int y1, int x2, int y2);
 	unsigned int get_width() const { return width; }
 	unsigned int get_height() const { return height; }
+	Particle::Type get_type(int x, int y);
 
 	bool is_valid(int x, int y) const;
 	bool is_air(int x, int y);

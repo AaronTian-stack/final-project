@@ -30,5 +30,5 @@ public:
 	void salt(Particle* particle, int x, int y);
 	void acid(Particle* particle, int x, int y);
 	void gasoline(Particle* p, int x, int y);
-	void vine(Particle* p, int x, int y);
+	void mold(Particle* p, int x, int y);
 };

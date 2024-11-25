@@ -86,8 +86,14 @@ void Grid::set(int x, int y, Particle::Type particle_type)
 		p.density = 25.f;
 		p.flammability = 0.15f;
 		break;
-	case Particle::VINE:
+	case Particle::MOLD:
+		p.life_time = 1.0f + 1.0f * thread_rand();
 		p.density = 150;
+		p.flammability = 0.2f;
+		p.dissolvability = 0.02f;
+		p.corrodibility = 0.1f;
+		p.dying = true;
+		p.color = Color_Util::vary_color(p.color);
 		break;
 	default:
 		break;
@@ -105,6 +111,13 @@ void Grid::swap(int x1, int y1, int x2, int y2)
 	Particle temp = *xy1;
 	grid[y1 * width + x1] = *xy2;
 	grid[y2 * width + x2] = temp;
+}
+
+Particle::Type Grid::get_type(int x, int y)
+{
+	// TODO: better default value
+	if (!is_valid(x, y)) return Particle::EMPTY;
+	return get(x, y)->type;
 }
 
 bool Grid::is_air(int x, int y)
