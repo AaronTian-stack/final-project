@@ -433,7 +433,8 @@ void Simulation::mold(Particle* p, int x, int y)
 	if (mold_count == 2 || mold_count == 3)
 	{
 		// TODO: generalize this to a param
-		int dir = static_cast<int> (100.0f * thread_rand());
+		float spread_rate = 0.01f;
+		int dir = static_cast<int> (1.0f / (spread_rate + 0.0001f) * thread_rand());
 		if (dir < 8)
 		{
 			int nx = x + dx[dir];
