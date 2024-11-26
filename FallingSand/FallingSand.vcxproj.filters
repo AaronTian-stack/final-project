@@ -36,6 +36,9 @@
     <ClCompile Include="tracy-0.11.1\public\TracyClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\particle_selector_ui.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="SDL2-2.30.7\lib\x64\SDL2.dll" />
@@ -56,6 +59,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\color.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\particle_selector_ui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

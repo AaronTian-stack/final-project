@@ -144,6 +144,7 @@
     <ClCompile Include="src\color.cpp" />
     <ClCompile Include="src\grid.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\particle_selector_ui.cpp" />
     <ClCompile Include="src\sdl_util.cpp" />
     <ClCompile Include="src\simulation.cpp" />
     <ClCompile Include="tracy-0.11.1\public\TracyClient.cpp" />
@@ -159,6 +160,7 @@
     <ClInclude Include="src\brush.h" />
     <ClInclude Include="src\color.h" />
     <ClInclude Include="src\grid.h" />
+    <ClInclude Include="src\particle_selector_ui.h" />
     <ClInclude Include="src\sdl_util.h" />
     <ClInclude Include="src\simulation.h" />
   </ItemGroup>

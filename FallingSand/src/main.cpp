@@ -8,9 +8,9 @@
 #include "sdl_util.h"
 #include "simulation.h"
 
-//#define DEBUGGING
-
 #include <Tracy.hpp>
+
+#include "particle_selector_ui.h"
 
 int main()
 {
@@ -63,10 +63,13 @@ int main()
 	RandomBrush rand_brush(brush_width, 0.1f);
 	Simulation simulation(&grid);
 
-	Particle::Type curr_particle = Particle::SAND;
+	Particle::Type selected_particle = Particle::SAND;
+
+	ParticleSelectorUI particle_selector_ui(10, 40);
 
 	bool quit = false;
-	double delta = 0.f;
+	bool over_UI = false;
+	double delta = 0.0;
 	while (!quit)
 	{
 		SDL_Event event;
@@ -80,10 +83,10 @@ int main()
 				switch (event.key.keysym.sym)
 				{
 				case SDLK_LEFT:
-					curr_particle = static_cast<Particle::Type>(std::max(curr_particle / 2, static_cast<int>(Particle::SAND)));
+					selected_particle = static_cast<Particle::Type>(std::max(selected_particle / 2, static_cast<int>(Particle::SAND)));
 					break;
 				case SDLK_RIGHT:
-					curr_particle = static_cast<Particle::Type>(std::max(curr_particle * 2 % Particle::EMPTY, static_cast<int>(Particle::SAND)));
+					selected_particle = static_cast<Particle::Type>(std::max(selected_particle * 2 % Particle::EMPTY, static_cast<int>(Particle::SAND)));
 					break;
 				default:
 					break;
@@ -99,10 +102,13 @@ int main()
 		
 		// click to draw
 		// TODO: customize brush
-		if (ParticleUtils::use_solid_brush(curr_particle))
-			circle_brush.draw_particles(grid, curr_particle);
-		else
-			rand_brush.draw_particles(grid, curr_particle); // can set default velocity
+		if (!over_UI)
+		{
+			if (ParticleUtils::use_solid_brush(selected_particle))
+				circle_brush.draw_particles(grid, selected_particle);
+			else
+				rand_brush.draw_particles(grid, selected_particle); // can set default velocity
+		}
 
 		// RENDER
 		void* pixels;
@@ -117,16 +123,19 @@ int main()
 
 		SDL_Util::update_texture_via_grid(pool, pixel_data, grid, WIDTH, HEIGHT, pitch);
 
-		int mouseX, mouseY;
-		SDL_GetMouseState(&mouseX, &mouseY);
-		Color mouseColor = ParticleUtils::colors.at(curr_particle);
-		SDL_Util::draw_circle(
-			{
-				.pixelData = pixel_data,
-				.width = WIDTH,
-				.height = HEIGHT
-			}, 
-			mouseX, mouseY, rand_brush.get_brush_size(), mouseColor.hex());
+		int mouse_x, mouse_y;
+		SDL_GetMouseState(&mouse_x, &mouse_y);
+		Color mouseColor = ParticleUtils::colors.at(selected_particle);
+		if (!over_UI)
+		{
+			SDL_Util::draw_circle(
+				{
+					.pixelData = pixel_data,
+					.width = WIDTH,
+					.height = HEIGHT
+				},
+				mouse_x, mouse_y, rand_brush.get_brush_size(), mouseColor.hex());
+		}
 
 		SDL_UnlockTexture(texture);
 
@@ -134,21 +143,13 @@ int main()
 		SDL_RenderClear(renderer);
 		SDL_RenderCopy(renderer, texture, nullptr, nullptr);
 
-#ifdef DEBUGGING
-		for (int i = 0; i < debug.size(); ++i)
-		{
-			SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-			SDL_RenderDrawLine(renderer, debug[i], 0, debug[i], HEIGHT);
-		}
-#endif
+		over_UI = particle_selector_ui.render(renderer, 
+				{ WIDTH, HEIGHT }, &selected_particle, mouse_x, mouse_y);
 
 		SDL_RenderPresent(renderer);
 
 		static Uint64 frame_time = SDL_GetTicks64();
 		delta = (frame_time - last_time) / 1000.f;
-#if(defined NDEBUG && defined DEBUGGING)
-		std::cout << "Delta time: " << delta * 1000 << " ms" << std::endl;
-#endif
 
 		FrameMark;
 	}

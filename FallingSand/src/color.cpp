@@ -71,7 +71,7 @@ void Color::from_hsl(float h, float s, float l)
 		b = hue2rgb(p, q, h - 1.0f / 3.0f);
 	}
 
-	this->hexValue = (static_cast<uint32_t>(r * 255.0f) << 16) | (static_cast<uint32_t>(g * 255.0f) << 8) | static_cast<uint32_t>(b * 255.0f);
+	this->hex_value = (static_cast<uint32_t>(r * 255.0f) << 16) | (static_cast<uint32_t>(g * 255.0f) << 8) | static_cast<uint32_t>(b * 255.0f);
 }
 
 template<typename T>
