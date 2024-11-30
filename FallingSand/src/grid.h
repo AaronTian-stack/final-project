@@ -48,7 +48,7 @@ struct Particle
 
 struct ParticleUtils
 {
-	inline static tsl::robin_map<Particle::Type, Color> colors =
+	const inline static tsl::robin_map<Particle::Type, Color> colors =
 	{
 		{ Particle::EMPTY, Color(0x000000) },
 		{ Particle::SAND, Color(0xFFD700) },

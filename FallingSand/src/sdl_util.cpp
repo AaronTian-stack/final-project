@@ -1,7 +1,5 @@
 ﻿#include "sdl_util.h"
 
-#include <cmath>
-
 void SDL_Util::put_pixel(const CanvasInfo& info, int x, int y, uint32_t color)
 {
 	if (x < 0 || x >= info.width || y < 0 || y >= info.height)
