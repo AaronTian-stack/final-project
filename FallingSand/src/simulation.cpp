@@ -114,6 +114,9 @@ void Simulation::update(float delta, BS::thread_pool& pool)
 					case Particle::MOLD:
 						mold(particle, x, y);
 						break;
+					case Particle::POISON:
+						poison(particle, x, y);
+						break;
 					default:
 						break;
 					}
@@ -428,13 +431,11 @@ void Simulation::mold(Particle* p, int x, int y)
 	}
 
 	if (mold_count < 2)
-		p->life_time = std::min(p->life_time, 0.3f);
+		p->life_time = std::min(p->life_time, 1.0f);
 
 	if (mold_count == 2 || mold_count == 3)
 	{
-		// TODO: generalize this to a param
-		float spread_rate = 0.01f;
-		int dir = static_cast<int> (1.0f / (spread_rate + 0.0001f) * thread_rand());
+		int dir = static_cast<int> (1.0f / (p->diffusibility + 0.0001f) * thread_rand());
 		if (dir < 8)
 		{
 			int nx = x + dx[dir];
@@ -444,4 +445,36 @@ void Simulation::mold(Particle* p, int x, int y)
 				grid->set(nx, ny, Particle::MOLD);
 		}
 	}
+}
+
+void Simulation::poison(Particle* p, int x, int y)
+{
+	std::array dx = { 1, 1, 0, -1, -1, -1,  0,  1 };
+	std::array dy = { 0, 1, 1,  1,  0, -1, -1, -1 };
+
+	float poison_count = 0;
+	for (int i = 0; i < 8; ++i)
+	{
+		int nx = x + dx[i];
+		int ny = y + dy[i];
+		if (grid->get_type(nx, ny) & Particle::POISON)
+			poison_count++;
+	}
+
+	if (poison_count > 3)
+		p->diffusibility *= 0.8;
+
+	if (poison_count > 2)
+	{
+		float prob = p->diffusibility * std::log(poison_count);
+		for (int i = 0; i < 8; ++i)
+		{
+			int nx = x + dx[i];
+			int ny = y + dy[i];
+			if (thread_rand() < prob && grid->is_liquid(nx, ny) && ~(grid->get_type(nx, ny) & Particle::POISON))
+				grid->set(nx, ny, Particle::POISON);
+		}
+	}
+	
+	liquid(p, x, y);
 }

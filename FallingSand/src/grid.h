@@ -30,9 +30,10 @@ struct Particle
 		ACID = 1 << 7,
 		GASOLINE = 1 << 8,
 		MOLD = 1 << 9,
-		EMPTY = 1 << 10,
+		POISON = 1 << 10,
+		EMPTY = 1 << 11,
 	};
-	// TOTAL = 36 bytes
+	// TOTAL = 40 bytes
 	XMFLOAT2 velocity = { 0, 0 }; // 8
 	Color color = 0x000000; // 4
 	float life_time = 0; // 4
@@ -40,6 +41,7 @@ struct Particle
 	float flammability = 0; // 4
 	float dissolvability = 0; // 4
 	float corrodibility = 0; // 4
+	float diffusibility = 0; // 4
 	Type type = EMPTY; // 2
 	// TODO: pack these states into leftover bits of Type
 	uint8_t dying = 0; // 1
@@ -61,6 +63,7 @@ struct ParticleUtils
 		{ Particle::ACID, Color(0x8FFE09) },
 		{ Particle::GASOLINE, Color(0xFFA500) },
 		{ Particle::MOLD, Color(0x6D9D5C) },
+		{ Particle::POISON, Color(0x8D2475) },
 	};
 
 	const inline static Particle::Type quantize_palette[] = {
@@ -71,7 +74,8 @@ struct ParticleUtils
 		Particle::WOOD,
 		Particle::SALT,
 		Particle::ACID,
-		Particle::GASOLINE
+		Particle::GASOLINE,
+		Particle::POISON,
 	};
 
 	static bool is_solid(Particle::Type type)
@@ -81,7 +85,7 @@ struct ParticleUtils
 
 	static bool is_liquid(Particle::Type type)
 	{
-		return type & (Particle::WATER | Particle::ACID | Particle::GASOLINE );
+		return type & (Particle::WATER | Particle::ACID | Particle::GASOLINE | Particle::POISON );
 	}
 
 	static bool is_air(Particle::Type type)
@@ -91,7 +95,7 @@ struct ParticleUtils
 
 	static bool affected_by_gravity(Particle::Type type)
 	{
-		return type & (Particle::SAND | Particle::WATER | Particle::SALT | Particle::ACID | Particle::GASOLINE);
+		return type & (Particle::SAND | Particle::WATER | Particle::SALT | Particle::ACID | Particle::GASOLINE | Particle::POISON );
 	}
 
 	static bool reversed_simulation(Particle::Type type)

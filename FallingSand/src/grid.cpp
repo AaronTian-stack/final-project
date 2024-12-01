@@ -92,8 +92,13 @@ void Grid::set(int x, int y, Particle::Type particle_type)
 		p.flammability = 0.2f;
 		p.dissolvability = 0.02f;
 		p.corrodibility = 0.1f;
+		p.diffusibility = 0.01f;
 		p.dying = true;
 		p.color = Color_Util::vary_color(p.color);
+		break;
+	case Particle::POISON:
+		p.density = 55.f;
+		p.diffusibility = 0.01f + 0.02f * thread_rand();
 		break;
 	default:
 		break;
