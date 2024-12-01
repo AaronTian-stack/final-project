@@ -52,8 +52,8 @@ struct ParticleUtils
 	{
 		{ Particle::EMPTY, Color(0x000000) },
 		{ Particle::SAND, Color(0xFFD700) },
-		{ Particle::WATER, Color(0x0000FF) },
-		{ Particle::STONE, Color(0x696969) },
+		{ Particle::WATER, Color(0x2389FF) },
+		{ Particle::STONE, Color(0x494949) },
 		{ Particle::WOOD, Color(0x362312) },
 		{ Particle::SMOKE, Color(0x888888) },
 		{ Particle::FIRE, Color(0xFF4500) },
@@ -63,6 +63,17 @@ struct ParticleUtils
 		{ Particle::MOLD, Color(0x6D9D5C) },
 	};
 
+	const inline static Particle::Type quantize_palette[] = {
+		Particle::EMPTY,
+		Particle::SAND,
+		Particle::WATER,
+		Particle::STONE,
+		Particle::WOOD,
+		Particle::SALT,
+		Particle::ACID,
+		Particle::GASOLINE
+	};
+
 	static bool is_solid(Particle::Type type)
 	{
 		return type & (Particle::SAND | Particle::STONE | Particle::WOOD | Particle::SALT | Particle::MOLD);
@@ -70,7 +81,7 @@ struct ParticleUtils
 
 	static bool is_liquid(Particle::Type type)
 	{
-		return type & (Particle::WATER | Particle::ACID);
+		return type & (Particle::WATER | Particle::ACID | Particle::GASOLINE );
 	}
 
 	static bool is_air(Particle::Type type)

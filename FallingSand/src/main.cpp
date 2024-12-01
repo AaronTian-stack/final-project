@@ -10,6 +10,7 @@
 
 #include <Tracy.hpp>
 
+#include "image_loader.h"
 #include "particle_selector_ui.h"
 
 int main()
@@ -65,6 +66,7 @@ int main()
 
 	Particle::Type selected_particle = Particle::SAND;
 
+	ImageLoader image_loader(&grid);
 	ParticleSelectorUI particle_selector_ui(10, 40);
 
 	bool quit = false;
@@ -87,6 +89,10 @@ int main()
 					break;
 				case SDLK_RIGHT:
 					selected_particle = static_cast<Particle::Type>(std::max(selected_particle * 2 % Particle::EMPTY, static_cast<int>(Particle::SAND)));
+					break;
+				// TODO: create UI for triggering open()
+				case SDLK_SPACE:
+					image_loader.open();
 					break;
 				default:
 					break;
