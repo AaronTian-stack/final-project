@@ -19,16 +19,14 @@ Example outputs:
 <img width="300" src="https://github.com/user-attachments/assets/62dc16fc-67bb-48ce-9d0e-2dacaba00c25" />
 
 ## Milestone 2: Implementation part 2 (due 11/25)
-We're over halfway there! This week should be about fixing bugs and extending the core of your generator. Make sure by the end of this week _your generator works and is feature complete._ Any core engine features that don't make it in this week should be cut! Don't worry if you haven't managed to exactly hit your goals. We're more interested in seeing proof of your development effort than knowing your planned everything perfectly. 
+Milestoen progress:
 
-Put all your code in your forked repository.
+- Multithreaded particle simulation
+- More complex particle classes and interactions (stone, salt, acid, gasoline, mold)
 
-Submission: Add a new section to your README titled: Milestone #3, which should include
-- written description of progress on your project goals. If you haven't hit all your goals, what did you have to cut and why? 
-- Detailed output from your generator, images, video, etc.
-We'll check your repository for updates. No need to create a new pull request.
+Example outputs:
 
-Come to class on the due date with a WORKING COPY of your project. We'll be spending time in class critiquing and reviewing your work so far.
+TODO
 
 ## Final submission (due 12/2)
 Time to polish! Spen this last week of your project using your generator to produce beautiful output. Add textures, tune parameters, play with colors, play with camera animation. Take the feedback from class critques and use it to take your project to the next level.
