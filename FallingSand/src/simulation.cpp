@@ -111,8 +111,11 @@ void Simulation::update(float delta, BS::thread_pool& pool)
 					case Particle::GASOLINE:
 						gasoline(particle, x, y);
 						break;
-					case Particle::VINE:
-						vine(particle, x, y);
+					case Particle::MOLD:
+						mold(particle, x, y);
+						break;
+					case Particle::POISON:
+						poison(particle, x, y);
 						break;
 					default:
 						break;
@@ -402,6 +405,76 @@ void Simulation::gasoline(Particle* p, int x, int y)
 	liquid(p, x, y);
 }
 
-void Simulation::vine(Particle* p, int x, int y)
+void Simulation::mold(Particle* p, int x, int y)
 {
+	if (burns(p, x, y))
+	{
+		grid->set(x, y, Particle::FIRE);
+		// TODO: customize burn time based on particle type
+		grid->get(x, y)->life_time = 1.0f + thread_rand();
+		return;
+	}
+
+	if (dissolves(p, x, y))
+		return;
+
+	float mold_count = 0;
+	std::array dx = { 1, 1, 0, -1, -1, -1,  0,  1 };
+	std::array dy = { 0, 1, 1,  1,  0, -1, -1, -1 };
+
+	for (int i = 0; i < 8; ++i)
+	{
+		int nx = x + dx[i];
+		int ny = y + dy[i];
+		if (grid->get_type(nx, ny) & Particle::MOLD)
+			mold_count++;
+	}
+
+	if (mold_count < 2)
+		p->life_time = std::min(p->life_time, 1.0f);
+
+	if (mold_count == 2 || mold_count == 3)
+	{
+		int dir = static_cast<int> (1.0f / (p->diffusibility + 0.0001f) * thread_rand());
+		if (dir < 8)
+		{
+			int nx = x + dx[dir];
+			int ny = y + dy[dir];
+			// TODO: decide whether mold should overwrite solids / liquids
+			if (grid->is_air(nx, ny))
+				grid->set(nx, ny, Particle::MOLD);
+		}
+	}
+}
+
+void Simulation::poison(Particle* p, int x, int y)
+{
+	std::array dx = { 1, 1, 0, -1, -1, -1,  0,  1 };
+	std::array dy = { 0, 1, 1,  1,  0, -1, -1, -1 };
+
+	float poison_count = 0;
+	for (int i = 0; i < 8; ++i)
+	{
+		int nx = x + dx[i];
+		int ny = y + dy[i];
+		if (grid->get_type(nx, ny) & Particle::POISON)
+			poison_count++;
+	}
+
+	if (poison_count > 3)
+		p->diffusibility *= 0.8;
+
+	if (poison_count > 2)
+	{
+		float prob = p->diffusibility * std::log(poison_count);
+		for (int i = 0; i < 8; ++i)
+		{
+			int nx = x + dx[i];
+			int ny = y + dy[i];
+			if (thread_rand() < prob && grid->is_liquid(nx, ny) && ~(grid->get_type(nx, ny) & Particle::POISON))
+				grid->set(nx, ny, Particle::POISON);
+		}
+	}
+	
+	liquid(p, x, y);
 }
