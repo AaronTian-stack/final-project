@@ -46,7 +46,6 @@ struct Particle
 	float corrodibility = 0.f; // 4
 	float diffusibility = 0.f; // 4
 	Type type = EMPTY; // 2
-	// TODO: pack these states into leftover bits of Type
 	uint8_t dying = 0; // 1
 	uint8_t burning = 0; // 1
 };
