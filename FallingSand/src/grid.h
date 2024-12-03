@@ -66,18 +66,6 @@ struct ParticleUtils
 		{ Particle::POISON, Color(0x8D2475) },
 	};
 
-	const inline static Particle::Type quantize_palette[] = {
-		Particle::EMPTY,
-		Particle::SAND,
-		Particle::WATER,
-		Particle::STONE,
-		Particle::WOOD,
-		Particle::SALT,
-		Particle::ACID,
-		Particle::GASOLINE,
-		Particle::POISON,
-	};
-
 	static bool is_solid(Particle::Type type)
 	{
 		return type & (Particle::SAND | Particle::STONE | Particle::WOOD | Particle::SALT | Particle::MOLD);

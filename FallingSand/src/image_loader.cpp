@@ -13,10 +13,12 @@
 
 ImageLoader::ImageLoader(Grid* grid) : grid(grid)
 {
+	for (const auto& [type, color] : ParticleUtils::colors)
+		color_palette.emplace_back(type, color);
 }
 
 // Source: https://www.compuphase.com/cmetric.htm
-double red_mean_dist(Color c1, Color c2)
+float red_mean_dist(Color c1, Color c2)
 {
 	long rmean = (c1.r() + c2.r()) / 2;
 	long dr = (long)c1.r() - (long)c2.r();
@@ -27,29 +29,28 @@ double red_mean_dist(Color c1, Color c2)
 	long gcomp = 4 * dg * dg;
 	long bcomp = ((767 - rmean) * db * db) >> 8;
 
-	return std::sqrt(rcomp + gcomp + bcomp);
+	return std::sqrtf(rcomp + gcomp + bcomp);
 }
 
-void ImageLoader::quantize_to_grid(unsigned char* image, int w, int h, int comp)
+void ImageLoader::quantize_to_grid(unsigned char* image, int w, int h, int channels)
 {
 	for (int x = 0; x < w; ++x)
 	{
 		for (int y = 0; y < h; ++y)
 		{
-			int offset = y * w * comp + x * comp;
-			Color color = Color(image[offset], image[offset + 1], image[offset + 2]);
+			int offset = y * w * channels + x * channels;
+			auto color = Color(image[offset], image[offset + 1], image[offset + 2]);
 
-			double min_delta = std::numeric_limits<float>::max();
+			auto min_delta = std::numeric_limits<float>::max();
 			Particle::Type particle_type = Particle::EMPTY;
 
-			for (Particle::Type pt : ParticleUtils::quantize_palette)
+			for (const auto& pair : color_palette)
 			{
-				Color particle_color = ParticleUtils::colors.at(pt);
-				double d = red_mean_dist(color, particle_color);
+				auto d = red_mean_dist(color, pair.second);
 				if (d < min_delta)
 				{
 					min_delta = d;
-					particle_type = pt;
+					particle_type = pair.first;
 				}
 			}
 
@@ -79,13 +80,30 @@ void ImageLoader::open()
 
 	int w;
 	int h;
-	int comp;
+	int channels;
 	unsigned char* raw_image;
 
 	// Load the image
 	if (GetOpenFileName(&ofn) == TRUE)
 	{
-		raw_image = stbi_load(ofn.lpstrFile, &w, &h, &comp, STBI_rgb);
+		stbi_info(ofn.lpstrFile, &w, &h, &channels);
+		auto req_comp = STBI_rgb;
+		switch (channels)
+		{
+		case 1:
+			req_comp = STBI_grey;
+			break;
+		case 3:
+			req_comp = STBI_rgb;
+			break;
+		case 4:
+			req_comp = STBI_rgb_alpha;
+			break;
+		default:
+			std::cerr << "Unsupported number of channels: " << channels << std::endl;
+		}
+
+		raw_image = stbi_load(ofn.lpstrFile, &w, &h, &channels, req_comp);
 
 		if (raw_image == nullptr)
 		{
@@ -100,23 +118,40 @@ void ImageLoader::open()
 	}
 
 	// Resize image to grid
-	int grid_w = grid->get_width();
-	int grid_h = grid->get_height();
-	unsigned char* resized_image = (unsigned char*) malloc(grid_w * grid_h * comp);
+	auto grid_w = static_cast<int>(grid->get_width());
+	auto grid_h = static_cast<int>(grid->get_height());
 
-	stbir_resize_uint8_srgb(raw_image, w, h, 0, resized_image, grid_w, grid_h, 0, STBIR_RGB);
-
-	// Color quantization
-	if (resized_image != nullptr)
+	auto layout = STBIR_1CHANNEL;
+	bool can_resize = true;
+	switch (channels)
 	{
-		quantize_to_grid(resized_image, grid_w, grid_h, comp);
+	case 1:
+		layout = STBIR_1CHANNEL;
+		break;
+	case 3:
+		layout = STBIR_RGB;
+		break;
+	case 4:
+		layout = STBIR_RGBA;
+		break;
+	default:
+		can_resize = false;
+		std::cerr << "Unsupported number of channels: " << channels << std::endl;
+	}
+
+	unsigned char* resized_image = nullptr;
+	if (can_resize)
+		resized_image = stbir_resize_uint8_srgb(raw_image, w, h, 0, nullptr, grid_w, grid_h, 0, layout);
+
+	if (resized_image)
+	{
+		quantize_to_grid(resized_image, grid_w, grid_h, channels);
 	}
 	else
 	{
 		std::cerr << "Failed to resize image: " << ofn.lpstrFile << std::endl;
 	}
 
-	// Free data
 	stbi_image_free(raw_image);
 	free(resized_image);
 }

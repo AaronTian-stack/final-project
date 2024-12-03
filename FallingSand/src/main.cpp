@@ -54,20 +54,26 @@ int main()
 		throw std::runtime_error("Unable to create texture");
 	}
 
-	int brush_width = 10;
-
 	BS::synced_stream sync_err(std::cerr);
 	BS::thread_pool pool;
 
 	Grid grid(WIDTH, HEIGHT, sync_err);
-	CircleBrush circle_brush(brush_width);
-	RandomBrush rand_brush(brush_width, 0.1f);
+	int brush_size = 10;
+	CircleBrush circle_brush(brush_size);
+	RandomBrush rand_brush(brush_size, 0.1f);
 	Simulation simulation(&grid);
 
 	Particle::Type selected_particle = Particle::SAND;
 
 	ImageLoader image_loader(&grid);
 	ParticleSelectorUI particle_selector_ui(10, 40);
+
+	auto update_brush_radii = [&brush_size, &circle_brush, &rand_brush](int size)
+		{
+			brush_size = std::clamp(size, 1, 100);
+			circle_brush.set_brush_size(brush_size);
+			rand_brush.set_brush_size(brush_size);
+		};
 
 	bool quit = false;
 	bool over_UI = false;
@@ -93,6 +99,12 @@ int main()
 				// TODO: create UI for triggering open()
 				case SDLK_SPACE:
 					image_loader.open();
+					break;
+			case SDLK_a:
+					update_brush_radii(brush_size - 1);
+					break;
+			case SDLK_d:
+					update_brush_radii(brush_size + 1);
 					break;
 				default:
 					break;

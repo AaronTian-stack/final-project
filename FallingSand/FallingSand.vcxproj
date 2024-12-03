@@ -158,9 +158,6 @@
     </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\stb_image.h" />
-    <ClInclude Include="include\stb_image_resize2.h" />
-    <ClInclude Include="resource.h" />
     <ClInclude Include="src\brush.h" />
     <ClInclude Include="src\color.h" />
     <ClInclude Include="src\grid.h" />

@@ -63,16 +63,7 @@
     <ClInclude Include="src\particle_selector_ui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\stb_image.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\image_loader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\stb_image_resize2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
