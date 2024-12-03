@@ -19,14 +19,14 @@ Example outputs:
 <img width="300" src="https://github.com/user-attachments/assets/62dc16fc-67bb-48ce-9d0e-2dacaba00c25" />
 
 ## Milestone 2: Implementation part 2 (due 11/25)
-Milestoen progress:
+Milestone progress:
 
 - Multithreaded particle simulation
 - More complex particle classes and interactions (stone, salt, acid, gasoline, mold)
 
 Example outputs:
 
-TODO
+<img width="300" src="https://github.com/user-attachments/assets/a07c64d2-65f5-4e70-bcb3-8e7bcd0bcf7f" />
 
 ## Final submission (due 12/2)
 Time to polish! Spen this last week of your project using your generator to produce beautiful output. Add textures, tune parameters, play with colors, play with camera animation. Take the feedback from class critques and use it to take your project to the next level.
