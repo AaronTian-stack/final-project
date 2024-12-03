@@ -11,14 +11,15 @@
 #include <Tracy.hpp>
 
 #include "image_loader.h"
+#include "image_upload_ui.h"
 #include "particle_selector_ui.h"
 
 int main()
 {
 	//*** REMOVE TRACY_ENABLE FROM PREPROCESSOR DEFINITION ON REAL RELEASE OR ELSE MEMORY WILL KEEP GROWING ***//
 
-	const int WIDTH = 1920;
-	const int HEIGHT = 1080;
+	const int WIDTH = 1280;
+	const int HEIGHT = 720;
 
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 	{
@@ -66,6 +67,7 @@ int main()
 	Particle::Type selected_particle = Particle::SAND;
 
 	ImageLoader image_loader(&grid);
+	ImageUploadUI image_upload_ui(renderer, "assets/upload.png", 20.f);
 	ParticleSelectorUI particle_selector_ui(10, 40);
 
 	auto update_brush_radii = [&brush_size, &circle_brush, &rand_brush](int size)
@@ -172,7 +174,7 @@ int main()
 		SDL_RenderCopy(renderer, texture, nullptr, nullptr);
 
 		over_UI = particle_selector_ui.render(renderer, 
-				{ WIDTH, HEIGHT }, &selected_particle, mouse_x, mouse_y);
+				{ WIDTH, HEIGHT }, &selected_particle, mouse_x, mouse_y) | image_upload_ui.render(renderer, image_loader, { WIDTH, HEIGHT }, mouse_x, mouse_y);;
 
 		SDL_RenderPresent(renderer);
 
