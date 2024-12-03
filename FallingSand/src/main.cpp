@@ -94,6 +94,9 @@ int main()
 			case SDL_KEYDOWN:
 				switch (event.key.keysym.sym)
 				{
+				case SDLK_ESCAPE:
+					quit = true;
+					break;
 				case SDLK_LEFT:
 					selected_particle = static_cast<Particle::Type>(std::max(selected_particle / 2, static_cast<int>(Particle::SAND)));
 					break;
