@@ -60,6 +60,23 @@ void Simulation::update(float delta, BS::thread_pool& pool)
 	const int num_columns = pool.get_thread_count();
 	const int pixels_per_group = ceil(grid->get_width() / num_columns);
 
+#ifdef INTERPOLATE
+	auto set_prev = [&]
+	{
+		ZoneScoped;
+		const BS::multi_future<void> loop_future = pool.submit_loop<unsigned int>(0, grid->get_height() * grid->get_width(),
+			[this](const unsigned int i)
+			{
+				auto x = static_cast<int>(i % grid->get_width());
+				auto y = static_cast<int>(i / grid->get_width());
+				auto particle = grid->get(x, y);
+				particle->prev_pos = { x, y };
+			});
+		loop_future.wait();
+	};
+	set_prev();
+#endif
+
 	auto iterate_bottom_to_top = [this, delta, directions](int start, int end)
 		{
 			if (start >= static_cast<int>(grid->get_width())) return;
@@ -160,13 +177,12 @@ void Simulation::update(float delta, BS::thread_pool& pool)
 	BS::multi_future<void> futures;
 
 	assert(num_columns % 2 == 0);
-	int random_offset = thread_rand() * pixels_per_group * 0.5;
+	const int random_offset = thread_rand() * pixels_per_group * 0.5;
 
 	for (int i = 0; i < num_columns; i += 2)
 	{
 		int start = i * pixels_per_group + random_offset * (i > 0);
 		int end = (i + 1) * pixels_per_group + random_offset;
-		//debug[i] = end;
 		futures.push_back(pool.submit_task([=]
 			{
 				iterate_bottom_to_top(start, end);
@@ -180,7 +196,6 @@ void Simulation::update(float delta, BS::thread_pool& pool)
 	{
 		int start = i * pixels_per_group + random_offset;
 		int end = (i + 1) * pixels_per_group + random_offset;
-		//debug[i] = end;
 		futures.push_back(pool.submit_task([=]
 			{
 				iterate_bottom_to_top(start, end);
@@ -192,8 +207,6 @@ void Simulation::update(float delta, BS::thread_pool& pool)
 
 	//iterate_bottom_to_top(0, grid->get_width());
 	//iterate_top_to_bottom(0, grid->get_width());
-
-	//return debug;
 }
 
 void Simulation::solid(Particle* p, int x, int y)
@@ -313,7 +326,7 @@ bool Simulation::extinguishes(Particle* p, int x, int y)
 		int nx = x + dx[i];
 		int ny = y + dy[i];
 		if (grid->is_extinguisher(nx, ny))
-			extinguishProbability += 0.5 + thread_rand() * 0.5;
+			extinguishProbability += 0.5f + thread_rand() * 0.5f;
 	}
 
 	return thread_rand() < 0.5 * extinguishProbability;
@@ -462,7 +475,7 @@ void Simulation::poison(Particle* p, int x, int y)
 	}
 
 	if (poison_count > 3)
-		p->diffusibility *= 0.8;
+		p->diffusibility *= 0.8f;
 
 	if (poison_count > 2)
 	{

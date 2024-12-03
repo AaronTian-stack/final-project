@@ -17,8 +17,8 @@ int main()
 {
 	//*** REMOVE TRACY_ENABLE FROM PREPROCESSOR DEFINITION ON REAL RELEASE OR ELSE MEMORY WILL KEEP GROWING ***//
 
-	const int WIDTH = 1280;
-	const int HEIGHT = 720;
+	const int WIDTH = 1920;
+	const int HEIGHT = 1080;
 
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 	{
@@ -69,15 +69,17 @@ int main()
 	ParticleSelectorUI particle_selector_ui(10, 40);
 
 	auto update_brush_radii = [&brush_size, &circle_brush, &rand_brush](int size)
-		{
-			brush_size = std::clamp(size, 1, 100);
-			circle_brush.set_brush_size(brush_size);
-			rand_brush.set_brush_size(brush_size);
-		};
+	{
+		brush_size = std::clamp(size, 1, 100);
+		circle_brush.set_brush_size(brush_size);
+		rand_brush.set_brush_size(brush_size);
+	};
 
 	bool quit = false;
 	bool over_UI = false;
-	double delta = 0.0;
+	float delta = 0.f;
+	float accum = 0.f;
+	constexpr float dt = 1.f / 30.f;
 	while (!quit)
 	{
 		SDL_Event event;
@@ -100,10 +102,10 @@ int main()
 				case SDLK_SPACE:
 					image_loader.open();
 					break;
-			case SDLK_a:
+				case SDLK_a:
 					update_brush_radii(brush_size - 1);
 					break;
-			case SDLK_d:
+				case SDLK_d:
 					update_brush_radii(brush_size + 1);
 					break;
 				default:
@@ -114,9 +116,17 @@ int main()
 				break;
 			}
 		}
+
 		// start timer
-		static Uint64 last_time = SDL_GetTicks64();
-		simulation.update(delta, pool);
+		static auto start_timer = std::chrono::high_resolution_clock::now();
+
+		accum += delta;
+		while (accum > dt)
+		{
+			simulation.update(dt, pool);
+			accum -= dt;
+		}
+		float alpha = accum / dt;
 		
 		// click to draw
 		// TODO: customize brush
@@ -137,9 +147,9 @@ int main()
 			break;
 		}
 
-		uint32_t* pixel_data = static_cast<uint32_t*>(pixels);
+		auto pixel_data = static_cast<uint32_t*>(pixels);
 
-		SDL_Util::update_texture_via_grid(pool, pixel_data, grid, WIDTH, HEIGHT, pitch);
+		SDL_Util::update_texture_via_grid(pool, pixel_data, grid, WIDTH, HEIGHT, pitch, alpha);
 
 		int mouse_x, mouse_y;
 		SDL_GetMouseState(&mouse_x, &mouse_y);
@@ -166,8 +176,8 @@ int main()
 
 		SDL_RenderPresent(renderer);
 
-		static Uint64 frame_time = SDL_GetTicks64();
-		delta = (frame_time - last_time) / 1000.f;
+		static auto end_timer = std::chrono::high_resolution_clock::now();
+		delta = std::chrono::duration<float, std::milli>(end_timer - start_timer).count() / 1000.f;
 
 		FrameMark;
 	}

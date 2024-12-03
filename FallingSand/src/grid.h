@@ -12,7 +12,7 @@
 inline float thread_rand()
 {
 	static thread_local std::mt19937 generator(std::random_device{}());
-	std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
+	std::uniform_real_distribution distribution(0.0f, 1.0f);
 	return distribution(generator);
 }
 
@@ -35,13 +35,16 @@ struct Particle
 	};
 	// TOTAL = 40 bytes
 	XMFLOAT2 velocity = { 0, 0 }; // 8
+#ifdef INTERPOLATE
+	XMINT2 prev_pos = { 0, 0 }; // 8
+#endif
 	Color color = 0x000000; // 4
-	float life_time = 0; // 4
-	float density = 0; // 4
-	float flammability = 0; // 4
-	float dissolvability = 0; // 4
-	float corrodibility = 0; // 4
-	float diffusibility = 0; // 4
+	float life_time = 0.f; // 4
+	float density = 0.f; // 4
+	float flammability = 0.f; // 4
+	float dissolvability = 0.f; // 4
+	float corrodibility = 0.f; // 4
+	float diffusibility = 0.f; // 4
 	Type type = EMPTY; // 2
 	// TODO: pack these states into leftover bits of Type
 	uint8_t dying = 0; // 1
@@ -114,15 +117,10 @@ public:
 	Particle::Type get_type(int x, int y);
 
 	bool is_valid(int x, int y) const;
-	bool is_air(int x, int y);
-	bool is_liquid(int x, int y);
-	bool is_solid(int x, int y);
-	bool is_burning(int x, int y);
-	bool is_extinguisher(int x, int y);
-	bool is_denser(Particle* particle, int x, int y);
+	bool is_air(int x, int y) const;
+	bool is_liquid(int x, int y) const;
+	bool is_solid(int x, int y) const;
+	bool is_burning(int x, int y) const;
+	bool is_extinguisher(int x, int y) const;
+	bool is_denser(Particle* particle, int x, int y) const;
 };
-
-inline bool Grid::is_valid(int x, int y) const
-{
-	return x >= 0 && x < width && y >= 0 && y < height;
-}

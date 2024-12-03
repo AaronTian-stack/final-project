@@ -37,6 +37,9 @@ void Grid::set(int x, int y, Particle::Type particle_type)
 	Particle p;
 	p.type = particle_type;
 	p.color = ParticleUtils::colors.at(particle_type);
+#ifdef INTERPOLATE
+	p.prev_pos = { x, y };
+#endif
 
 	switch (particle_type)
 	{
@@ -53,7 +56,7 @@ void Grid::set(int x, int y, Particle::Type particle_type)
 		break;
 	case Particle::WOOD:
 		p.density = 200.f;
-		p.flammability = 0.1f;
+		p.flammability = 0.2f;
 		p.corrodibility = 0.05f;
 		p.color = Color_Util::vary_color(p.color);
 		break;
@@ -89,10 +92,10 @@ void Grid::set(int x, int y, Particle::Type particle_type)
 	case Particle::MOLD:
 		p.life_time = 1.0f + 1.0f * thread_rand();
 		p.density = 150;
-		p.flammability = 0.2f;
+		p.flammability = 0.5f;
 		p.dissolvability = 0.02f;
 		p.corrodibility = 0.1f;
-		p.diffusibility = 0.01f;
+		p.diffusibility = 0.03f;
 		p.dying = true;
 		p.color = Color_Util::vary_color(p.color);
 		break;
@@ -125,37 +128,42 @@ Particle::Type Grid::get_type(int x, int y)
 	return get(x, y)->type;
 }
 
-bool Grid::is_air(int x, int y)
+bool Grid::is_valid(int x, int y) const
+{
+	return x >= 0 && x < width && y >= 0 && y < height;
+}
+
+bool Grid::is_air(int x, int y) const
 {
 	if (!is_valid(x, y)) return false;
 	return ParticleUtils::is_air(get(x, y)->type);
 }
 
-bool Grid::is_liquid(int x, int y)
+bool Grid::is_liquid(int x, int y) const
 {
 	if (!is_valid(x, y)) return false;
 	return ParticleUtils::is_liquid(get(x, y)->type);
 }
 
-bool Grid::is_solid(int x, int y)
+bool Grid::is_solid(int x, int y) const
 {
 	if (!is_valid(x, y)) return false;
 	return ParticleUtils::is_solid(get(x, y)->type);
 }
 
-bool Grid::is_burning(int x, int y)
+bool Grid::is_burning(int x, int y) const
 {
 	if (!is_valid(x, y)) return false;
 	return get(x, y)->burning;
 }
 
-bool Grid::is_extinguisher(int x, int y)
+bool Grid::is_extinguisher(int x, int y) const
 {
 	if (!is_valid(x, y)) return false;
 	return get(x, y)->type & Particle::WATER;
 }
 
-bool Grid::is_denser(Particle* particle, int x, int y)
+bool Grid::is_denser(Particle* particle, int x, int y) const
 {
 	if (!is_valid(x, y)) return false; // assume out of bounds infinitely dense
 	return get(x, y)->density < particle->density;
