@@ -1,11 +1,12 @@
 ﻿#include "particle_selector_ui.h"
 
 #include <SDL_mouse.h>
-
+#include <SDL_image.h>
 #include "grid.h"
 
 ParticleSelectorUI::ParticleSelectorUI(float horizontal_padding, float vertical_padding) : padding(horizontal_padding), vertical_padding(vertical_padding)
 {
+    
 }
 
 bool ParticleSelectorUI::render(SDL_Renderer* renderer, XMINT2 window_size, Particle::Type* selected, int mouse_x,
@@ -19,9 +20,9 @@ bool ParticleSelectorUI::render(SDL_Renderer* renderer, XMINT2 window_size, Part
     float x = static_cast<float>(window_size.x) - padding - base_icon_size;
     float y = padding + vertical_padding;
 
-    // assume 20 >= # of particle types
+    // assume 16 >= # of particle types
 	// TODO: replace with struct for readability
-    std::array<XMFLOAT2, 20> icon_size_offset;
+    std::array<XMFLOAT2, 16> icon_size_offset;
 
     int index = 0;
     for (int i = 1; i < Particle::EMPTY; i <<= 1)

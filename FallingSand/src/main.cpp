@@ -11,6 +11,7 @@
 #include <Tracy.hpp>
 
 #include "image_loader.h"
+#include "image_upload_ui.h"
 #include "particle_selector_ui.h"
 
 int main()
@@ -54,24 +55,33 @@ int main()
 		throw std::runtime_error("Unable to create texture");
 	}
 
-	int brush_width = 10;
-
 	BS::synced_stream sync_err(std::cerr);
 	BS::thread_pool pool;
 
 	Grid grid(WIDTH, HEIGHT, sync_err);
-	CircleBrush circle_brush(brush_width);
-	RandomBrush rand_brush(brush_width, 0.1f);
+	int brush_size = 10;
+	CircleBrush circle_brush(brush_size);
+	RandomBrush rand_brush(brush_size, 0.1f);
 	Simulation simulation(&grid);
 
 	Particle::Type selected_particle = Particle::SAND;
 
 	ImageLoader image_loader(&grid);
+	ImageUploadUI image_upload_ui(renderer, "assets/upload.png", 20.f);
 	ParticleSelectorUI particle_selector_ui(10, 40);
+
+	auto update_brush_radii = [&brush_size, &circle_brush, &rand_brush](int size)
+	{
+		brush_size = std::clamp(size, 1, 100);
+		circle_brush.set_brush_size(brush_size);
+		rand_brush.set_brush_size(brush_size);
+	};
 
 	bool quit = false;
 	bool over_UI = false;
-	double delta = 0.0;
+	float delta = 0.f;
+	float accum = 0.f;
+	constexpr float dt = 1.f / 30.f;
 	while (!quit)
 	{
 		SDL_Event event;
@@ -94,6 +104,12 @@ int main()
 				case SDLK_SPACE:
 					image_loader.open();
 					break;
+				case SDLK_a:
+					update_brush_radii(brush_size - 1);
+					break;
+				case SDLK_d:
+					update_brush_radii(brush_size + 1);
+					break;
 				default:
 					break;
 				}
@@ -102,9 +118,17 @@ int main()
 				break;
 			}
 		}
+
 		// start timer
-		static Uint64 last_time = SDL_GetTicks64();
-		simulation.update(delta, pool);
+		static auto start_timer = std::chrono::high_resolution_clock::now();
+
+		accum += delta;
+		while (accum > dt)
+		{
+			simulation.update(dt, pool);
+			accum -= dt;
+		}
+		float alpha = accum / dt;
 		
 		// click to draw
 		// TODO: customize brush
@@ -125,9 +149,9 @@ int main()
 			break;
 		}
 
-		uint32_t* pixel_data = static_cast<uint32_t*>(pixels);
+		auto pixel_data = static_cast<uint32_t*>(pixels);
 
-		SDL_Util::update_texture_via_grid(pool, pixel_data, grid, WIDTH, HEIGHT, pitch);
+		SDL_Util::update_texture_via_grid(pool, pixel_data, grid, WIDTH, HEIGHT, pitch, alpha);
 
 		int mouse_x, mouse_y;
 		SDL_GetMouseState(&mouse_x, &mouse_y);
@@ -150,12 +174,12 @@ int main()
 		SDL_RenderCopy(renderer, texture, nullptr, nullptr);
 
 		over_UI = particle_selector_ui.render(renderer, 
-				{ WIDTH, HEIGHT }, &selected_particle, mouse_x, mouse_y);
+				{ WIDTH, HEIGHT }, &selected_particle, mouse_x, mouse_y) | image_upload_ui.render(renderer, image_loader, { WIDTH, HEIGHT }, mouse_x, mouse_y);;
 
 		SDL_RenderPresent(renderer);
 
-		static Uint64 frame_time = SDL_GetTicks64();
-		delta = (frame_time - last_time) / 1000.f;
+		static auto end_timer = std::chrono::high_resolution_clock::now();
+		delta = std::chrono::duration<float, std::milli>(end_timer - start_timer).count() / 1000.f;
 
 		FrameMark;
 	}
