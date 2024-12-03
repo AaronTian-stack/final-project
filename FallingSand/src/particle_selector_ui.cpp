@@ -46,6 +46,7 @@ bool ParticleSelectorUI::render(SDL_Renderer* renderer, XMINT2 window_size, Part
     }
 
 	rects.clear();
+	rects_outline.clear();
 
     index = 0;
     y = padding + vertical_padding;
@@ -54,9 +55,15 @@ bool ParticleSelectorUI::render(SDL_Renderer* renderer, XMINT2 window_size, Part
 	    const auto& icon_so = icon_size_offset[index++];
 
 		rects.push_back({ icon_so.y, y, icon_so.x, icon_so.x });
+#define OUTLINE_SIZE 1
+		rects_outline.push_back({ icon_so.y - OUTLINE_SIZE, y - OUTLINE_SIZE, icon_so.x + OUTLINE_SIZE * 2, icon_so.x + OUTLINE_SIZE * 2 });
 
 		y += icon_so.x + padding;
     }
+
+    // draw black outline rects
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+	SDL_RenderFillRectsF(renderer, rects_outline.data(), rects_outline.size());
 
 	bool inside = false;
 	for (int i = 0; i < rects.size(); ++i)

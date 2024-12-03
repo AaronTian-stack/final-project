@@ -173,8 +173,9 @@ int main()
 		SDL_RenderClear(renderer);
 		SDL_RenderCopy(renderer, texture, nullptr, nullptr);
 
-		over_UI = particle_selector_ui.render(renderer, 
-				{ WIDTH, HEIGHT }, &selected_particle, mouse_x, mouse_y) | image_upload_ui.render(renderer, image_loader, { WIDTH, HEIGHT }, mouse_x, mouse_y);;
+		auto over_particle = particle_selector_ui.render(renderer, { WIDTH, HEIGHT }, &selected_particle, mouse_x, mouse_y);
+		auto over_image = image_upload_ui.render(renderer, image_loader, { WIDTH, HEIGHT }, mouse_x, mouse_y);
+		over_UI = over_particle || over_image;
 
 		SDL_RenderPresent(renderer);
 
