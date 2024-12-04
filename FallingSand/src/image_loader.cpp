@@ -44,13 +44,14 @@ void ImageLoader::quantize_to_grid(unsigned char* image, int w, int h, int chann
 			auto min_delta = std::numeric_limits<float>::max();
 			Particle::Type particle_type = Particle::EMPTY;
 
-			for (const auto& pair : color_palette)
+			for (Particle::Type pt : ParticleUtils::quantize_palette)
 			{
-				auto d = red_mean_dist(color, pair.second);
+				Color pc = ParticleUtils::colors.at(pt);
+				auto d = red_mean_dist(color, pc);
 				if (d < min_delta)
 				{
 					min_delta = d;
-					particle_type = pair.first;
+					particle_type = pt;
 				}
 			}
 

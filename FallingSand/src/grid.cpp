@@ -89,7 +89,7 @@ void Grid::set(int x, int y, Particle::Type particle_type)
 		p.density = 25.f;
 		p.flammability = 0.15f;
 		break;
-	case Particle::MOLD:
+	case Particle::VIRUS:
 		p.life_time = 1.0f + 1.0f * thread_rand();
 		p.density = 150;
 		p.flammability = 0.5f;

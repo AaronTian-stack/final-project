@@ -128,8 +128,8 @@ void Simulation::update(float delta, BS::thread_pool& pool)
 					case Particle::GASOLINE:
 						gasoline(particle, x, y);
 						break;
-					case Particle::MOLD:
-						mold(particle, x, y);
+					case Particle::VIRUS:
+						virus(particle, x, y);
 						break;
 					case Particle::POISON:
 						poison(particle, x, y);
@@ -395,7 +395,7 @@ void Simulation::acid(Particle* p, int x, int y)
 			auto np = grid->get(nx, ny);
 			if (np && thread_rand() < np->corrodibility)
 			{
-				grid->set(nx, ny, Particle::EMPTY);
+				grid->set(nx, ny, Particle::SMOKE);
 				break;
 			}
 		}
@@ -403,6 +403,9 @@ void Simulation::acid(Particle* p, int x, int y)
 
 	if (dissolves(p, x, y))
 		p->dying = true;
+
+	if (p->life_time < 0.01f)
+		grid->set(x, y, Particle::SMOKE);
 
 	liquid(p, x, y);
 }
@@ -418,7 +421,7 @@ void Simulation::gasoline(Particle* p, int x, int y)
 	liquid(p, x, y);
 }
 
-void Simulation::mold(Particle* p, int x, int y)
+void Simulation::virus(Particle* p, int x, int y)
 {
 	if (burns(p, x, y))
 	{
@@ -431,7 +434,7 @@ void Simulation::mold(Particle* p, int x, int y)
 	if (dissolves(p, x, y))
 		return;
 
-	float mold_count = 0;
+	float virus_count = 0;
 	std::array dx = { 1, 1, 0, -1, -1, -1,  0,  1 };
 	std::array dy = { 0, 1, 1,  1,  0, -1, -1, -1 };
 
@@ -439,23 +442,23 @@ void Simulation::mold(Particle* p, int x, int y)
 	{
 		int nx = x + dx[i];
 		int ny = y + dy[i];
-		if (grid->get_type(nx, ny) & Particle::MOLD)
-			mold_count++;
+		if (grid->get_type(nx, ny) & Particle::VIRUS)
+			virus_count++;
 	}
 
-	if (mold_count < 2)
+	if (virus_count < 2)
 		p->life_time = std::min(p->life_time, 1.0f);
 
-	if (mold_count == 2 || mold_count == 3)
+	if (virus_count == 2 || virus_count == 3)
 	{
 		int dir = static_cast<int> (1.0f / (p->diffusibility + 0.0001f) * thread_rand());
 		if (dir < 8)
 		{
 			int nx = x + dx[dir];
 			int ny = y + dy[dir];
-			// TODO: decide whether mold should overwrite solids / liquids
+			// TODO: decide whether virus should overwrite solids / liquids
 			if (grid->is_air(nx, ny))
-				grid->set(nx, ny, Particle::MOLD);
+				grid->set(nx, ny, Particle::VIRUS);
 		}
 	}
 }

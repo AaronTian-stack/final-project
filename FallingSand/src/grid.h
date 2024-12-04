@@ -29,7 +29,7 @@ struct Particle
 		SALT = 1 << 6,
 		ACID = 1 << 7,
 		GASOLINE = 1 << 8,
-		MOLD = 1 << 9,
+		VIRUS = 1 << 9,
 		POISON = 1 << 10,
 		EMPTY = 1 << 11,
 	};
@@ -55,22 +55,35 @@ struct ParticleUtils
 	const inline static tsl::robin_map<Particle::Type, Color> colors =
 	{
 		{ Particle::EMPTY, Color(0x000000) },
-		{ Particle::SAND, Color(0xFFD700) },
-		{ Particle::WATER, Color(0x2389FF) },
+		{ Particle::SAND, Color(0xFFE4b5) },
+		{ Particle::WATER, Color(0x4682B4) },
 		{ Particle::STONE, Color(0x494949) },
-		{ Particle::WOOD, Color(0x362312) },
+		{ Particle::WOOD, Color(0x8B4513) },
 		{ Particle::SMOKE, Color(0x888888) },
 		{ Particle::FIRE, Color(0xFF4500) },
 		{ Particle::SALT, Color(0xDDDDDD) },
-		{ Particle::ACID, Color(0x8FFE09) },
+		{ Particle::ACID, Color(0x2C7C34) },
 		{ Particle::GASOLINE, Color(0xFFA500) },
-		{ Particle::MOLD, Color(0x6D9D5C) },
-		{ Particle::POISON, Color(0x8D2475) },
+		{ Particle::VIRUS, Color(0xFF1C27) },
+		{ Particle::POISON, Color(0x4B0082) },
+	};
+
+	const inline static Particle::Type quantize_palette[] = {
+		Particle::EMPTY,
+		Particle::SAND,
+		Particle::WATER,
+		Particle::STONE,
+		Particle::WOOD,
+		Particle::SALT,
+		Particle::ACID,
+		Particle::GASOLINE,
+		Particle::POISON,
+		Particle::VIRUS,
 	};
 
 	static bool is_solid(Particle::Type type)
 	{
-		return type & (Particle::SAND | Particle::STONE | Particle::WOOD | Particle::SALT | Particle::MOLD);
+		return type & (Particle::SAND | Particle::STONE | Particle::WOOD | Particle::SALT | Particle::VIRUS);
 	}
 
 	static bool is_liquid(Particle::Type type)
