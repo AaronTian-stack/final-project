@@ -5,6 +5,8 @@ VisualStudioVersion = 17.11.35312.102
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FallingSand", "FallingSand.vcxproj", "{DDBF6AC7-A5A1-4BBB-9667-72F5F4A6EACD}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Setup", "..\Setup\Setup.vdproj", "{BBBD54B9-6702-41DF-95EE-5484139BDDAB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,11 @@ Global
 		{DDBF6AC7-A5A1-4BBB-9667-72F5F4A6EACD}.Release|x64.Build.0 = Release|x64
 		{DDBF6AC7-A5A1-4BBB-9667-72F5F4A6EACD}.Release|x86.ActiveCfg = Release|Win32
 		{DDBF6AC7-A5A1-4BBB-9667-72F5F4A6EACD}.Release|x86.Build.0 = Release|Win32
+		{BBBD54B9-6702-41DF-95EE-5484139BDDAB}.Debug|x64.ActiveCfg = Debug
+		{BBBD54B9-6702-41DF-95EE-5484139BDDAB}.Debug|x86.ActiveCfg = Debug
+		{BBBD54B9-6702-41DF-95EE-5484139BDDAB}.Release|x64.ActiveCfg = Release
+		{BBBD54B9-6702-41DF-95EE-5484139BDDAB}.Release|x64.Build.0 = Release
+		{BBBD54B9-6702-41DF-95EE-5484139BDDAB}.Release|x86.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

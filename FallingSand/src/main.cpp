@@ -14,12 +14,50 @@
 #include "image_upload_ui.h"
 #include "particle_selector_ui.h"
 
-int main()
+#include <argparse/argparse.hpp>
+
+int main(int argc, char* argv[])
 {
 	//*** REMOVE TRACY_ENABLE FROM PREPROCESSOR DEFINITION ON REAL RELEASE OR ELSE MEMORY WILL KEEP GROWING ***//
 
-	const int WIDTH = 1280;
-	const int HEIGHT = 720;
+	argparse::ArgumentParser program("falling_sand");
+
+	program.add_argument("-w", "--width")
+		.default_value(1280)
+		.required()
+		.help("width of the window.")
+		.scan<'i', int>();
+
+	program.add_argument("-h", "--height")
+		.default_value(720)
+		.required()
+		.help("height of the window.")
+		.scan<'i', int>();
+
+	try 
+	{
+		program.parse_args(argc, argv);
+	}
+	catch (const std::exception& err) 
+	{
+		std::cerr << err.what() << std::endl;
+		std::cerr << program;
+		return 1;
+	}
+
+	const int WIDTH = program.get<int>("--width");
+	const int HEIGHT = program.get<int>("--height");
+
+	if (WIDTH <= 0)
+	{
+		std::cerr << "Width must be greater than 0" << std::endl;
+		return 1;
+	}
+	if (HEIGHT <= 0)
+	{
+		std::cerr << "Height must be greater than 0" << std::endl;
+		return 1;
+	}
 
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 	{
@@ -67,7 +105,7 @@ int main()
 	Particle::Type selected_particle = Particle::SAND;
 
 	ImageLoader image_loader(&grid);
-	ImageUploadUI image_upload_ui(renderer, "assets/upload.png", 20.f);
+	ImageUploadUI image_upload_ui(renderer, "./assets/upload.png", 20.f);
 	ParticleSelectorUI particle_selector_ui(10, 40);
 
 	auto update_brush_radii = [&brush_size, &circle_brush, &rand_brush](int size)

@@ -150,7 +150,7 @@ void ImageLoader::open()
 	}
 	else
 	{
-		std::cerr << "Failed to resize image: " << ofn.lpstrFile << std::endl;
+		std::cerr << "Failed to resize image" << std::endl;
 	}
 
 	stbi_image_free(raw_image);
