@@ -1,6 +1,6 @@
 # Final Project!
 
-This is it! The culmination of your procedural graphics experience this semester. For your final project, we'd like to give you the time and space to explore a topic of your choosing. You may choose any topic you please, so long as you vet the topic and scope with an instructor or TA. We've provided some suggestions below. The scope of your project should be roughly 1.5 homework assignments). To help structure your time, we're breaking down the project into 4 milestones:
+CIS 5660 Final Project by Aaron Tian and Jason Liu
 
 ## Project planning: Design Doc (due 11/6)
 Link: https://docs.google.com/document/d/1daQ1Lxg7-4aTjbJ6nWlsPGlSO5K-yVkOK4bKGH1HCEc/edit?usp=sharing
@@ -36,3 +36,18 @@ Image importing, user interface elements, performance optimizations and bug fixe
 
 ![image](https://github.com/user-attachments/assets/5cb9b009-80c5-435f-9fe3-6045236abcda)
 
+## Dependencies
+
+* https://github.com/p-ranav/argparse
+* https://github.com/libsdl-org/SDL
+* https://github.com/libsdl-org/SDL_image
+* https://github.com/bshoshany/thread-pool
+* https://github.com/Tessil/robin-map
+* https://github.com/wolfpld/tracy
+* https://github.com/uxlfoundation/oneTBB
+
+## References
+
+* https://jason.today/falling-improved
+* https://www.youtube.com/watch?v=VLZjd_Y1gJ8
+* https://www.youtube.com/watch?v=5Ka3tbbT-9E
