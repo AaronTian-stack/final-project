@@ -3,7 +3,7 @@
 "VSVersion" = "3:800"
 "ProjectType" = "8:{978C614F-708E-4E1A-B201-565925725DBA}"
 "IsWebType" = "8:FALSE"
-"ProjectName" = "8:Falling Sand Installer"
+"ProjectName" = "8:Setup"
 "LanguageId" = "3:1033"
 "CodePage" = "3:1252"
 "UILanguageId" = "3:1033"
@@ -21,6 +21,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_32AA44CA57A645F3AFDA5E3F73C941A7"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_32AA910A767B46819E8E68A5E66395A1"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -29,12 +35,6 @@
         {
         "MsmKey" = "8:_43ECFF365999FF3647C1F800A0CAA9FF"
         "OwnerKey" = "8:_32AA910A767B46819E8E68A5E66395A1"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_4ABB097B3E9C4D888E0684725B935935"
-        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -93,6 +93,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_C0C2AAD3E6CA4A53A1C59AF83B421649"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_DAF8CF1501A04CB681EB88350ADAEE84"
         "OwnerKey" = "8:_32AA910A767B46819E8E68A5E66395A1"
         "MsmSig" = "8:_UNDEFINED"
@@ -140,6 +146,14 @@
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.7.2"
+                    {
+                    "Name" = "8:Microsoft .NET Framework 4.7.2 (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.7.2"
+                    }
+                }
             }
         }
         "Release"
@@ -214,6 +228,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_32AA44CA57A645F3AFDA5E3F73C941A7"
+            {
+            "SourcePath" = "8:..\\FallingSand\\assets\\sand-icon.ico"
+            "TargetName" = "8:sand-icon.ico"
+            "Tag" = "8:"
+            "Folder" = "8:_9A99A36C370046528DAF740EB9417F2D"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_43ECFF365999FF3647C1F800A0CAA9FF"
             {
             "SourcePath" = "8:api-ms-win-crt-runtime-l1-1-0.dll"
@@ -232,26 +266,6 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4ABB097B3E9C4D888E0684725B935935"
-            {
-            "SourcePath" = "8:..\\FallingSand\\assets\\upload.png"
-            "TargetName" = "8:upload.png"
-            "Tag" = "8:"
-            "Folder" = "8:_9A99A36C370046528DAF740EB9417F2D"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4EA2166682FA557D78D81DA8126BA611"
@@ -434,6 +448,26 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C0C2AAD3E6CA4A53A1C59AF83B421649"
+            {
+            "SourcePath" = "8:..\\FallingSand\\assets\\upload.png"
+            "TargetName" = "8:upload.png"
+            "Tag" = "8:"
+            "Folder" = "8:_9A99A36C370046528DAF740EB9417F2D"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DAF8CF1501A04CB681EB88350ADAEE84"
             {
             "SourcePath" = "8:api-ms-win-crt-heap-l1-1-0.dll"
@@ -582,7 +616,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Falling Sand"
         "ProductCode" = "8:{813C3073-2267-432E-ACF7-8503EED8F776}"
-        "PackageCode" = "8:{FC814F06-D1B8-412B-BEF8-4D98894177BA}"
+        "PackageCode" = "8:{E403BE3F-8ECA-4EE7-A250-C668B811096F}"
         "UpgradeCode" = "8:{671CD5E5-A934-4F0C-9918-6965764CEB65}"
         "AspNetVersion" = "8:2.0.50727.0"
         "RestartWWWService" = "11:FALSE"
@@ -593,13 +627,13 @@
         "Manufacturer" = "8:AaronTJasonL"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
-        "Title" = "8:Setup"
+        "Title" = "8:fallingsandinstaller"
         "Subject" = "8:"
         "ARPCONTACT" = "8:Aaron Tian, Jason Liu"
         "Keywords" = "8:"
         "ARPCOMMENTS" = "8:CIS 5660 Final Project"
         "ARPURLINFOABOUT" = "8:"
-        "ARPPRODUCTICON" = "8:"
+        "ARPPRODUCTICON" = "8:_32AA44CA57A645F3AFDA5E3F73C941A7"
         "ARPIconIndex" = "3:0"
         "SearchPath" = "8:"
         "UseSystemSearchPath" = "11:TRUE"
@@ -702,7 +736,7 @@
         }
         "Shortcut"
         {
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_0F95CA2EC1794B7D830CD1B19E7B228A"
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_1BF363B159E846D2847BE4EE8A53C223"
             {
             "Name" = "8:Falling Sand"
             "Arguments" = "8:"
@@ -713,7 +747,21 @@
             "Target" = "8:_32AA910A767B46819E8E68A5E66395A1"
             "Folder" = "8:_582E92C4F7124C2485F3B599733D82BB"
             "WorkingFolder" = "8:_48E536CD9F8941479DC82F26FFB7DBE6"
-            "Icon" = "8:"
+            "Icon" = "8:_32AA44CA57A645F3AFDA5E3F73C941A7"
+            "Feature" = "8:"
+            }
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_3AB4AFA429724626A622E4FC478F146D"
+            {
+            "Name" = "8:Falling Sand"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_32AA910A767B46819E8E68A5E66395A1"
+            "Folder" = "8:_ECB9144B7F0943ACA8C0B51B0660EBF3"
+            "WorkingFolder" = "8:_48E536CD9F8941479DC82F26FFB7DBE6"
+            "Icon" = "8:_32AA44CA57A645F3AFDA5E3F73C941A7"
             "Feature" = "8:"
             }
         }

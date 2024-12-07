@@ -16,6 +16,12 @@
 
 #include <argparse/argparse.hpp>
 
+#ifndef _DEBUG
+
+#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
+
+#endif
+
 int main(int argc, char* argv[])
 {
 	//*** REMOVE TRACY_ENABLE FROM PREPROCESSOR DEFINITION ON REAL RELEASE OR ELSE MEMORY WILL KEEP GROWING ***//
@@ -175,7 +181,8 @@ int main(int argc, char* argv[])
 		// TODO: customize brush
 		if (!over_UI)
 		{
-			if (ParticleUtils::use_solid_brush(selected_particle))
+			auto right_click = SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SDL_BUTTON_RIGHT);
+			if (ParticleUtils::use_solid_brush(selected_particle) || right_click)
 				circle_brush.draw_particles(grid, selected_particle);
 			else
 				rand_brush.draw_particles(grid, selected_particle); // can set default velocity

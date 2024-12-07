@@ -38,11 +38,15 @@
     <ClCompile Include="src\image_loader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\image_upload_ui.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="SDL2-2.30.7\lib\x64\SDL2.dll" />
     <CopyFileToFolders Include="oneapi-tbb-2022.0.0\redist\intel64\vc14\tbb12.dll" />
     <CopyFileToFolders Include="oneapi-tbb-2022.0.0\redist\intel64\vc14\tbb12_debug.dll" />
+    <CopyFileToFolders Include="SDL2_image-2.8.2\lib\x64\SDL2_image.dll" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\grid.h">
@@ -64,6 +68,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\image_loader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\image_upload_ui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -90,5 +97,8 @@
   <ItemGroup>
     <Text Include="oneapi-tbb-2022.0.0\LICENSE.txt" />
     <Text Include="oneapi-tbb-2022.0.0\third-party-programs.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="assets\upload.png" />
   </ItemGroup>
 </Project>
